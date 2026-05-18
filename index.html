@@ -78,16 +78,30 @@ header {
 .view-content { display: none; }
 .view-content.active { display: block; }
 
+.board-tabs-bar { display: flex; align-items: center; padding: 0 12px; height: 36px; background: rgba(12,12,15,0.88); border-bottom: 1px solid var(--border); position: sticky; top: 52px; z-index: 190; backdrop-filter: blur(12px); }
+
+/* Board view height accounts for header (52px) + board-tabs-bar (36px) */
+#board-view.view-content.active { display: flex; flex-direction: column; height: calc(100vh - 88px); overflow: hidden; }
+#board-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 20px 20px 0; overflow: hidden; }
+
 /* ══ BOARD ══ */
-#board-wrap { padding: 20px; }
-.add-panel-btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: var(--radius); border: none; background: var(--accent); color: #fff; font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; margin-bottom: 18px; transition: all 0.15s; }
+.add-panel-btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: var(--radius); border: none; background: var(--accent); color: #fff; font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; margin-bottom: 12px; transition: all 0.15s; flex-shrink: 0; }
 .add-panel-btn:hover { opacity: 0.85; }
 
-#panel-container.board-horizontal .panel { background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); margin-bottom: 14px; overflow: hidden; min-width: 260px; }
-#panel-container.board-horizontal .panel-body { padding: 12px; display: flex; flex-wrap: wrap; gap: 10px; min-height: 76px; transition: background 0.15s; }
-#panel-container.board-vertical { display: flex; flex-direction: row; align-items: flex-start; gap: 14px; overflow-x: auto; padding-bottom: 20px; }
-#panel-container.board-vertical .panel { flex-shrink: 0; background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); overflow: hidden; display: flex; flex-direction: column; }
-#panel-container.board-vertical .panel-body { padding: 10px; display: flex; flex-direction: column; flex-wrap: nowrap; gap: 8px; overflow-y: auto; overflow-x: hidden; flex: 1; min-height: 60px; max-height: calc(100vh - 200px); transition: background 0.15s; }
+/* Horizontal layout: panels stack vertically, scroll within board-wrap */
+#panel-container.board-horizontal { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-bottom: 20px; }
+#panel-container.board-horizontal .panel { background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); margin-bottom: 14px; overflow: hidden; min-width: 260px; transition: opacity 0.2s, border-color 0.2s; }
+#panel-container.board-horizontal .task-card { width: auto; }
+#panel-container.board-horizontal .task-title { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+#panel-container.board-horizontal .panel-body { padding: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(186px, 1fr)); gap: 10px; min-height: 76px; transition: background 0.15s; }
+
+/* Vertical layout: columns fill height, scrollbar at bottom of viewport */
+#panel-container.board-vertical { flex: 1; min-height: 0; display: flex; flex-direction: row; align-items: flex-start; gap: 14px; overflow-x: auto; overflow-y: hidden; padding-bottom: 16px; }
+#panel-container.board-vertical .panel { flex-shrink: 0; background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); overflow: hidden; display: flex; flex-direction: column; max-height: calc(100vh - 140px); transition: opacity 0.2s, border-color 0.2s; }
+#panel-container.board-vertical .panel-body { padding: 10px; display: flex; flex-direction: column; flex-wrap: nowrap; gap: 8px; overflow-y: auto; overflow-x: hidden; flex: 1; min-height: 0; transition: background 0.15s; }
+#panel-container.board-vertical .panel-header { padding: 8px 10px; gap: 5px 6px; }
+#panel-container.board-vertical .panel-btn { padding: 3px 7px; font-size: 9px; }
+#panel-container.board-vertical .panel-actions { gap: 3px; }
 #panel-container.board-vertical .panel-body::-webkit-scrollbar { width: 4px; }
 #panel-container.board-vertical .panel-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 #panel-container.board-vertical .task-card { width: 100% !important; }
@@ -110,9 +124,11 @@ header {
 .panel-header.cs-full .panel-btn:hover { background: rgba(0,0,0,0.50); border-color: rgba(255,255,255,0.45); }
 .panel-btn.panel-btn-del { color: #ff7070 !important; border-color: rgba(255,100,100,0.35) !important; }
 .panel-btn.panel-btn-del:hover { background: rgba(180,40,40,0.45) !important; border-color: rgba(255,100,100,0.6) !important; }
+.panel-header.cs-full .panel-btn.panel-btn-del { background: rgba(140,20,20,0.45) !important; border-color: rgba(255,100,100,0.55) !important; color: #fff !important; }
+.panel-header.cs-full .panel-btn.panel-btn-del:hover { background: rgba(180,30,30,0.7) !important; border-color: rgba(255,120,120,0.8) !important; color: #fff !important; }
 
 /* Task card */
-.task-card { width: 196px; border-radius: var(--radius); border: 2px solid #111111; background: #2d2d2d; padding: 10px; cursor: grab; transition: transform 0.18s cubic-bezier(.2,.8,.4,1), box-shadow 0.18s, opacity 0.18s; position: relative; user-select: none; }
+.task-card { width: 196px; border-radius: var(--radius); border: 2px solid #111111; background: #2d2d2d; padding: 10px; cursor: grab; transition: transform 0.18s cubic-bezier(.2,.8,.4,1), box-shadow 0.18s, opacity 0.18s; position: relative; user-select: none; display: flex; flex-direction: column; }
 .task-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.5); }
 .task-card.dragging { opacity: 0.3; cursor: grabbing; transform: scale(0.96) rotate(-1deg); }
 .task-card.task-drop-before { box-shadow: 0 -3px 0 0 var(--accent); margin-top: 3px; }
@@ -120,7 +136,7 @@ header {
 .date-badge { font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; font-weight: 500; padding: 3px 7px; border-radius: 4px; display: inline-block; margin-bottom: 7px; letter-spacing: 0.2px; }
 .task-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 7px; }
 .task-tag { font-family: 'IBM Plex Mono', monospace; font-size: 9px; padding: 2px 6px; border-radius: 3px; background: rgba(0,0,0,0.3); color: rgba(255,255,255,0.85); }
-.task-btns { display: flex; gap: 4px; }
+.task-btns { display: flex; gap: 4px; margin-top: auto; }
 .card-btn { flex: 1; padding: 5px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.18); background: rgba(0,0,0,0.3); color: rgba(255,255,255,0.88); font-size: 10px; font-family: 'IBM Plex Mono', monospace; cursor: pointer; transition: all 0.15s; font-weight: 600; }
 .card-btn:hover { background: rgba(0,0,0,0.5); color: #fff; border-color: rgba(255,255,255,0.35); }
 .card-btn.done:hover { background: rgba(50,180,100,0.35); color: #50c86a; border-color: rgba(80,200,110,0.5); }
@@ -223,6 +239,11 @@ header {
 }
 .ab-del-btn:hover { background: rgba(200,60,60,0.18); color: #e05555; border-color: #5a1a1a; }
 
+/* ══ POINTER DRAG ══ */
+.pd-ghost { position:fixed; z-index:9999; pointer-events:none; opacity:0.93; transform:rotate(2deg) scale(1.04); box-shadow:0 20px 60px rgba(0,0,0,0.8); border-radius:var(--radius); will-change:left,top; }
+.task-placeholder { border-radius:var(--radius); background:rgba(91,143,255,0.08); border:2px dashed rgba(91,143,255,0.4); flex-shrink:0; box-sizing:border-box; }
+.panel-placeholder { border-radius:var(--radius-lg); background:rgba(91,143,255,0.05); border:2px dashed rgba(91,143,255,0.3); flex-shrink:0; box-sizing:border-box; }
+
 /* ══ MODALS ══ */
 .modal-bd { position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 16px; }
 .modal { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius-lg); padding: 22px; width: 460px; max-width: 100%; max-height: 88vh; overflow-y: auto; }
@@ -260,10 +281,16 @@ input[type="file"].form-input::-webkit-file-upload-button { background: var(--su
 .opt-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(91,143,255,0.1); }
 .opt-btn:hover:not(.active) { border-color: var(--border2); color: var(--text-dim); }
 .color-picker-modal { width: 250px; }
-.pastel-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-.pastel-swatch { width: 28px; height: 28px; border-radius: 5px; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s, border-color 0.1s; }
+.pastel-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin-bottom: 12px; }
+.pastel-swatch { width: 100%; aspect-ratio: 1; border-radius: 5px; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s, border-color 0.1s; }
 .pastel-swatch:hover { transform: scale(1.15); border-color: rgba(255,255,255,0.5); }
 .pastel-swatch.sel { border-color: #fff; }
+
+/* Inline color swatch button (subjects / task types) */
+.stbl-color-btn { width: 34px; height: 28px; border: 1px solid var(--border); border-radius: 5px; cursor: pointer; display: block; transition: transform 0.1s, border-color 0.1s; }
+.stbl-color-btn:hover { transform: scale(1.08); border-color: var(--border2); }
+.inline-color-picker { position: fixed; z-index: 9000; background: var(--surface2); border: 1px solid var(--border2); border-radius: 10px; padding: 10px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); width: 218px; }
+.inline-color-picker .pastel-grid { margin-bottom: 8px; }
 
 /* Misc */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -281,37 +308,53 @@ input[type="number"].form-input::-webkit-inner-spin-button { -webkit-appearance:
 
 /* ══ MOBILE ══ */
 @media (max-width: 640px) {
+  /* Header — compress to fit 4 tabs + board tabs + gear */
   .logo { display: none; }
   header { padding: 0 10px; height: 48px; gap: 6px; }
   .view-tabs { overflow-x: auto; flex-shrink: 0; gap: 1px; }
   .view-tabs::-webkit-scrollbar { height: 0; }
   .view-tab-btn { padding: 5px 8px; font-size: 11px; white-space: nowrap; flex-shrink: 0; }
   .nav-sep { display: none; }
+  .board-tabs-bar { top: 48px; padding: 0 10px; }
+  #board-view.view-content.active { height: calc(100vh - 84px); }
   .group-tabs-wrap { min-width: 0; }
   .group-tab-btn { padding: 4px 8px; font-size: 11px; }
   .hdr-btn { width: 36px; height: 36px; font-size: 17px; flex-shrink: 0; }
   .hdr-io-btn span { display: none; }
   .hdr-io-btn { width: 36px; height: 36px; padding: 0; justify-content: center; }
 
-  #board-wrap { padding: 12px; }
-  #panel-container { padding: 0 !important; }
-  #panel-container.board-vertical, #panel-container.board-horizontal { display: block !important; overflow-x: unset; }
-  #panel-container.board-vertical .panel, #panel-container.board-horizontal .panel { min-width: unset !important; max-width: unset !important; width: 100% !important; margin-bottom: 12px; }
-  .task-card { width: 100% !important; }
-  #panel-container.board-vertical .panel-body, #panel-container.board-horizontal .panel-body { flex-direction: column !important; flex-wrap: nowrap !important; max-height: none !important; overflow-y: visible !important; max-width: none !important; }
+  /* Board */
+  #board-view.view-content.active { height: auto; overflow: visible; }
+  #board-wrap { padding: 12px 12px 0; overflow: visible; }
+
+  /* Horizontal layout: 3 tasks per row */
+  #panel-container.board-horizontal { padding: 0 !important; overflow-y: visible; }
+  #panel-container.board-horizontal .panel-body { grid-template-columns: repeat(3, 1fr) !important; }
+
+  /* Vertical layout: keep horizontal swipe, panels take most of screen width */
+  #panel-container.board-vertical { display: flex !important; flex-direction: row !important; overflow-x: auto !important; overflow-y: visible; align-items: flex-start; gap: 10px; padding: 0 0 16px !important; max-height: none; }
+  #panel-container.board-vertical .panel { min-width: 240px !important; max-width: 240px !important; max-height: calc(100vh - 120px); margin-bottom: 0; }
+  #panel-container.board-vertical .panel-body { max-height: none !important; overflow-y: auto !important; }
+  #panel-container.board-vertical .task-card { width: 100% !important; }
+  #panel-container.board-vertical .panel-header { padding: 8px 10px; gap: 5px 6px; }
+  #panel-container.board-vertical .panel-btn { padding: 3px 6px; font-size: 9px; }
+  #panel-container.board-vertical .panel-actions { gap: 3px; }
   .card-btn { padding: 7px 6px; font-size: 11px; }
+  /* Panel header: name on its own line, buttons wrap below */
   .panel-header { padding: 10px 12px; flex-wrap: wrap; gap: 6px 8px; }
   .panel-name-input { min-width: 0; width: 100%; font-size: 14px; }
   .panel-actions { flex-wrap: wrap; gap: 4px; }
   .panel-btn { padding: 5px 8px; font-size: 10px; }
   .add-panel-btn { width: 100%; justify-content: center; margin-bottom: 12px; padding: 10px; }
 
+  /* Calendar — keep cell padding at 6px so the JS chip-width math (calc(100%+12px), margin:-6px) stays correct */
   .cal-body { padding: 12px; }
   .cal-header { margin-bottom: 12px; }
   #cal-month-title { font-size: 14px; }
   .cal-day-hdr { padding: 6px 2px; font-size: 9px; letter-spacing: 0; }
   .cal-cell { min-height: 60px; padding: 6px; }
   .cal-day-num { font-size: 10px; margin-bottom: 3px; }
+  /* Shrink chips slightly on mobile; keep height locked so gap div still matches */
   .cal-task { font-size: 8px !important; height: 26px !important; margin-bottom: 2px !important; }
   .cal-task-gap { height: 26px !important; margin-bottom: 2px !important; }
   .ct-title { font-size: 8px; }
@@ -320,11 +363,13 @@ input[type="number"].form-input::-webkit-inner-spin-button { -webkit-appearance:
   .filter-chip span { font-size: 9px; }
   .dim-note { font-size: 9px; }
 
+  /* Archive */
   .archive-body { padding: 12px; }
   .archive-item { flex-wrap: wrap; gap: 8px; padding: 10px 12px; }
   .archive-title { width: 100%; }
   .archive-meta { font-size: 9px; }
 
+  /* All Boards */
   .ab-body { padding: 14px; }
   .ab-header { flex-wrap: wrap; gap: 10px; }
   .ab-new-btn { width: 100%; justify-content: center; }
@@ -333,6 +378,7 @@ input[type="number"].form-input::-webkit-inner-spin-button { -webkit-appearance:
   .ab-card-actions { width: 100%; display: flex; gap: 8px; }
   .ab-open-btn, .ab-del-btn { flex: 1; text-align: center; }
 
+  /* Modals — bottom sheet */
   .modal-bd { align-items: flex-end; padding: 0; }
   .modal { width: 100% !important; max-width: 100% !important; border-radius: 18px 18px 0 0 !important; max-height: 90vh; padding: 20px 18px 32px; }
   .settings-modal { width: 100% !important; }
@@ -353,7 +399,6 @@ input[type="number"].form-input::-webkit-inner-spin-button { -webkit-appearance:
 <body>
 <div id="bg-layer"></div>
 
-<!-- Hidden file input for importing saves -->
 <input type="file" id="import-file-input" accept=".json" style="display:none" onchange="handleImportFile(this)">
 
 <header>
@@ -364,10 +409,7 @@ input[type="number"].form-input::-webkit-inner-spin-button { -webkit-appearance:
     <button class="view-tab-btn" onclick="switchView('archive',this)">Archive</button>
     <button class="view-tab-btn" onclick="switchView('allboards',this)">All Boards</button>
   </div>
-  <div class="nav-sep"></div>
-  <div class="group-tabs-wrap" id="group-tabs-wrap"></div>
-
-  <!-- Save / Load buttons -->
+  <div style="flex:1"></div>
   <button class="hdr-io-btn save" onclick="exportSave()" title="Export save file">
     <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <path d="M8 1v9M5 7l3 3 3-3"/><rect x="2" y="11" width="12" height="4" rx="1"/>
@@ -380,11 +422,14 @@ input[type="number"].form-input::-webkit-inner-spin-button { -webkit-appearance:
     </svg>
     <span>Import</span>
   </button>
-
   <button class="hdr-btn" onclick="openSettings()" title="Settings">&#9881;</button>
 </header>
 
-<!-- Toast notification -->
+<!-- Board tabs sub-bar -->
+<div class="board-tabs-bar" id="board-tabs-bar">
+  <div class="group-tabs-wrap" id="group-tabs-wrap"></div>
+</div>
+
 <div id="toast"></div>
 
 <!-- BOARD -->
@@ -393,7 +438,7 @@ input[type="number"].form-input::-webkit-inner-spin-button { -webkit-appearance:
     <div style="padding:20px 20px 0;">
       <button class="add-panel-btn" onclick="addPanel()">+ NEW PANEL</button>
     </div>
-    <div id="panel-container" class="board-horizontal" style="padding:0 20px 20px;"></div>
+    <div id="panel-container" class="board-horizontal"></div>
   </div>
 </div>
 
@@ -499,58 +544,37 @@ function task(id)     { return S.tasks.find(t=>t.id===id) || null; }
 // ══════════════════════════════════════
 function exportSave() {
   try {
-    const filename = `taskboard-${new Date().toISOString().slice(0,10)}.json`;
-    const blob = new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href = url; a.download = filename;
+    const filename=`taskboard-${new Date().toISOString().slice(0,10)}.json`;
+    const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download=filename;
     document.body.appendChild(a); a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast('&#10003; Saved as ' + filename);
-  } catch(e) {
-    showToast('Export failed: ' + e.message);
-  }
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showToast('&#10003; Saved as '+filename);
+  } catch(e){ showToast('Export failed: '+e.message); }
 }
-
 function triggerImport() {
-  document.getElementById('import-file-input').value = '';
+  document.getElementById('import-file-input').value='';
   document.getElementById('import-file-input').click();
 }
-
 function handleImportFile(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
     try {
-      const parsed = JSON.parse(e.target.result);
-      // Basic validation
-      if (!parsed.groups || !Array.isArray(parsed.groups) || !Array.isArray(parsed.tasks)) {
+      const parsed=JSON.parse(e.target.result);
+      if(!parsed.groups||!Array.isArray(parsed.groups)||!Array.isArray(parsed.tasks))
         throw new Error('File does not look like a Taskboard save.');
-      }
-      confirmModal(
-        `Load "${file.name}"? This will replace all current boards and tasks.`,
-        () => {
-          parsed.groups.forEach(g => {
-            g.settings = Object.assign(DEFAULT_SETTINGS(), g.settings || {});
-          });
-          S = parsed;
-          activeGroupId = S.groups[0]?.id || null;
-          calFilterIds  = null;
-          arcFilterIds  = null;
-          save();
-          renderGroupTabs();
-          renderBoard();
-          renderCalFilter();
-          renderArcFilter();
-          applyBg();
-          showToast('&#10003; Loaded from ' + file.name);
-        }
-      );
-    } catch(err) {
-      showToast('&#x2715; Import failed — ' + err.message);
-    }
+      confirmModal(`Load "${file.name}"? This will replace all current boards and tasks.`,()=>{
+        parsed.groups.forEach(g=>{g.settings=Object.assign(DEFAULT_SETTINGS(),g.settings||{});});
+        S=parsed; activeGroupId=S.groups[0]?.id||null;
+        calFilterIds=null; arcFilterIds=null;
+        save(); renderGroupTabs(); renderBoard();
+        renderCalFilter(); renderArcFilter(); applyBg();
+        showToast('&#10003; Loaded from '+file.name);
+      });
+    } catch(err){ showToast('&#x2715; Import failed — '+err.message); }
   };
   reader.readAsText(file);
 }
@@ -558,13 +582,12 @@ function handleImportFile(input) {
 // ══════════════════════════════════════
 //  TOAST
 // ══════════════════════════════════════
-let _toastTimer = null;
+let _toastTimer=null;
 function showToast(msg) {
-  const el = document.getElementById('toast');
-  el.innerHTML = msg;
-  el.classList.add('show');
+  const el=document.getElementById('toast');
+  el.innerHTML=msg; el.classList.add('show');
   clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+  _toastTimer=setTimeout(()=>el.classList.remove('show'),3000);
 }
 
 // ══════════════════════════════════════
@@ -610,6 +633,7 @@ function dateBadgeStyle(iso) {
   let tc; if(lum<0.30) tc='#ccaa00'; else if(lum<0.62) tc='#ffffff'; else tc='#1a1000';
   return `background:rgb(${r},${g},${b});color:${tc};`;
 }
+// Start date badge — black→green as start approaches; green→yellow once started+due near
 function startBadgeInfo(startISO, dueISO) {
   if (!startISO) return null;
   const sd=daysUntil(startISO), ds=fmtDate(startISO);
@@ -620,9 +644,11 @@ function startBadgeInfo(startISO, dueISO) {
     const lum=(0.299*r+0.587*gc+0.114*bc)/255;
     return { style:`background:rgb(${r},${gc},${bc});color:${lum>0.35?'#001200':'#70cc88'};`, label:`Starts in ${sd}d | ${ds}` };
   }
+  // Started
   const ago=Math.abs(sd), dd=dueISO?daysUntil(dueISO):null;
   if (dd!==null && dd<0) return { style:'background:#3d1010;color:#e06060;', label:`${Math.abs(dd)}d Overdue | ${fmtDate(dueISO)}` };
   if (dd!==null && dd<=14) {
+    // Blend green→yellow by due proximity
     const t=1-(dd/14);
     const r=Math.round(30+t*225), gc=Math.round(160+t*50), bc=Math.round(60*(1-t));
     const lum=(0.299*r+0.587*gc+0.114*bc)/255;
@@ -630,6 +656,7 @@ function startBadgeInfo(startISO, dueISO) {
     const label=dd===0?`Due Today | ${fmtDate(dueISO)}`:`${dd} Day${dd!==1?'s':''} Left | ${fmtDate(dueISO)}`;
     return { style:`background:rgb(${r},${gc},${bc});color:${tc};`, label };
   }
+  // Started, due far / no due
   const label=ago===0?`Started Today | ${ds}`:`Started ${ago}d ago | ${ds}`;
   return { style:'background:#0d2e18;color:#50c878;', label };
 }
@@ -661,6 +688,7 @@ function panelTasks(pid) {
     return new Date(a.dueDate)-new Date(b.dueDate);
   });
   else if (sort==='alpha') tasks.sort((a,b)=>a.title.localeCompare(b.title));
+  // 'none' = insertion order
   return tasks;
 }
 
@@ -668,10 +696,9 @@ function panelTasks(pid) {
 //  DRAG STATE
 // ══════════════════════════════════════
 let dragId = null;
-let dragPanelId = null;
 
 // ══════════════════════════════════════
-//  GROUP TABS
+//  GROUP TABS  (display + switch only — management is in All Boards)
 // ══════════════════════════════════════
 function renderGroupTabs() {
   const wrap = document.getElementById('group-tabs-wrap');
@@ -690,7 +717,7 @@ function switchGroup(id) {
 }
 
 // ══════════════════════════════════════
-//  ALL BOARDS
+//  ALL BOARDS  (create / rename / delete boards here)
 // ══════════════════════════════════════
 function renderAllBoards() {
   const el = document.getElementById('ab-list');
@@ -735,6 +762,7 @@ function addGroup() {
   save();
   renderGroupTabs();
   renderAllBoards();
+  // Focus the new board's name input for immediate rename
   setTimeout(() => {
     const inp = document.querySelector(`#ab-card-${g.id} .ab-card-name`);
     if (inp) { inp.focus(); inp.select(); }
@@ -750,6 +778,7 @@ function renameGroup(id, name) {
   renderGroupTabs();
   renderCalFilter();
   renderArcFilter();
+  // Re-render the All Boards meta line (without losing focus)
   const metaEl = document.querySelector(`#ab-card-${id} .ab-card-meta`);
   if (metaEl) {
     const panelCount  = g.panels.length;
@@ -761,7 +790,7 @@ function renameGroup(id, name) {
 
 function deleteGroup(id) {
   const g = groupById(id);
-  if (S.groups.length <= 1) return;
+  if (S.groups.length <= 1) return; // can't delete last board
   confirmModal(`Delete board "${g?.name||'this board'}" and all its panels and tasks?`, () => {
     S.tasks  = S.tasks.filter(t => t.groupId !== id);
     S.groups = S.groups.filter(x => x.id !== id);
@@ -776,9 +805,11 @@ function deleteGroup(id) {
 }
 
 function openBoard(id) {
+  // Switch to this board and jump to Board view
   activeGroupId = id;
   renderGroupTabs();
   applyBg();
+  // Activate Board tab
   document.querySelectorAll('.view-tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.view-content').forEach(c => c.classList.remove('active'));
   document.querySelector('.view-tab-btn[onclick*="board"]').classList.add('active');
@@ -794,7 +825,7 @@ function renderFilterBar(barId, filterSet) {
   bar.innerHTML = `<span class="filter-bar-label">Show:</span>` +
     S.groups.map(g => {
       const checked = filterSet===null || filterSet.has(g.id);
-      const dotColor = g.panels[0]?.color || 'var(--border2)';
+      const dotColor = g.settings.bgColor || g.panels[0]?.color || 'var(--border2)';
       return `<label class="filter-chip${checked?' checked':''}" id="fchip-${barId}-${g.id}">
         <input type="checkbox" ${checked?'checked':''} onchange="onFilterChange('${barId}','${g.id}',this.checked)">
         <div class="filter-chip-dot" style="background:${dotColor}"></div>
@@ -832,7 +863,9 @@ function renderBoard() {
     applyBg(); return;
   }
 
-  const panelStyle = layout === 'vertical' ? 'min-width:320px;max-width:320px;' : '';
+  // Vertical: fixed 260px per panel (one task card wide + padding).
+  // Horizontal: full width, tasks wrap to fill whatever space is available.
+  const panelStyle = layout === 'vertical' ? 'min-width:270px;max-width:270px;' : '';
 
   let h = '';
   for (const p of g.panels) {
@@ -849,16 +882,13 @@ function renderBoard() {
       hdrStyle = `background:${col};`; nameColor = contrastColor(col);
     }
 
+    const bodyStyle = '';
+
     const sortLabel = {date:'↕ Date', alpha:'A→Z', none:'· Free'}[p.sort||'date'];
 
     h += `
-    <div class="panel" id="panel-${p.id}" ${panelStyle?`style="${panelStyle}"`:''}
-      ondragover="ev_panelReorderOver(event,'${p.id}')"
-      ondrop="ev_panelReorderDrop(event,'${p.id}')"
-      ondragleave="ev_panelReorderLeave(event,'${p.id}')">
-      <div class="${hdrClass}" style="${hdrStyle}" draggable="true"
-        ondragstart="ev_panelDragStart(event,'${p.id}')"
-        ondragend="ev_panelDragEnd(event)">
+    <div class="panel" id="panel-${p.id}" ${panelStyle?`style="${panelStyle}"`:''}>
+      <div class="${hdrClass}" style="${hdrStyle}" onpointerdown="initPanelPointerDrag(event,'${p.id}')">
         <span class="panel-name-input" contenteditable="true"
           style="color:${nameColor};"
           draggable="false"
@@ -873,7 +903,7 @@ function renderBoard() {
           <button class="panel-btn panel-btn-del" onclick="deletePanel('${p.id}')">Delete</button>
         </div>
       </div>
-      <div class="panel-body" id="pbody-${p.id}"
+      <div class="panel-body" id="pbody-${p.id}" style="${bodyStyle}"
         ondragover="ev_panelOver(event,'${p.id}')"
         ondrop="ev_panelDrop(event,'${p.id}')"
         ondragleave="ev_panelLeave(event,'${p.id}')">
@@ -897,12 +927,13 @@ function cardHTML(t, g, freeSort=false) {
     const ds=dateBadgeStyle(t.dueDate), dl=formatDateLabel(t.dueDate);
     if (ds&&dl) badgeHTML=`<div class="date-badge" style="${ds}">${dl}</div>`;
   }
+  // Free-sort: allow drag-to-reorder within panel
   const fsAttrs = freeSort
     ? `ondragover="ev_taskReorderOver(event,'${t.id}')" ondrop="ev_taskReorderDrop(event,'${t.id}')" ondragleave="this.classList.remove('task-drop-before')"`
     : '';
   return `
   <div class="task-card" id="tc-${t.id}" style="border-color:${outline};background:${fill};"
-    draggable="true" ondragstart="ev_taskDragStart(event,'${t.id}')" ondragend="ev_taskDragEnd(event)" ${fsAttrs}>
+    onpointerdown="initTaskPointerDrag(event,'${t.id}')" ${fsAttrs}>
     <div class="task-title" style="color:${tc}">${esc(t.title)}</div>
     ${badgeHTML}
     <div class="task-tags">
@@ -923,6 +954,7 @@ let calY=new Date().getFullYear(), calM=new Date().getMonth();
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
+// Returns all ISO date strings between two ISO dates (inclusive), UTC-safe
 function getDaysInRange(startISO, endISO) {
   const days=[];
   const [sy,sm,sd]=startISO.split('-').map(Number);
@@ -937,7 +969,10 @@ function taskSpanDays(t) {
   return 0;
 }
 
+// Assign a consistent vertical row to each task so longer tasks always appear
+// closest to the top across every day cell they occupy.
 function assignCalRows(tasks, monthStart, monthEnd) {
+  // Sort: longer span first, then earlier start
   const sorted=[...tasks].sort((a,b)=>{
     const diff=taskSpanDays(b)-taskSpanDays(a);
     if (diff!==0) return diff;
@@ -946,7 +981,7 @@ function assignCalRows(tasks, monthStart, monthEnd) {
     return sA<sB?-1:1;
   });
 
-  const occupied={};
+  const occupied={};  // iso -> Set<rowIndex>
   const taskRow={};
 
   for (const t of sorted) {
@@ -982,6 +1017,7 @@ function renderCalendar() {
     return false;
   });
 
+  // Pre-assign consistent rows so each task holds the same vertical slot every day
   const taskRow=assignCalRows(active, monthStart, monthEnd);
 
   let h=DAYS.map(d=>`<div class="cal-day-hdr">${d}</div>`).join('');
@@ -1000,6 +1036,7 @@ function renderCalendar() {
       return false;
     });
 
+    // Build a row-index→task map for this day
     const rowMap={};
     dayTasks.forEach(t=>{ rowMap[taskRow[t.id]||0]=t; });
     const maxRow=dayTasks.length?Math.max(...dayTasks.map(t=>taskRow[t.id]||0)):-1;
@@ -1008,6 +1045,7 @@ function renderCalendar() {
       ondragover="ev_calOver(event)" ondrop="ev_calDrop(event,'${iso}')" ondragleave="ev_calLeave(event)">
       <div class="cal-day-num">${d}</div>`;
 
+    // Render slots 0..maxRow, inserting invisible gaps where no task occupies that row
     for (let row=0; row<=maxRow; row++) {
       const t=rowMap[row];
       if (!t) { h+=`<div class="cal-task-gap">&nbsp;</div>`; continue; }
@@ -1026,6 +1064,7 @@ function renderCalendar() {
       let chipStyle=`background:${bgCol};`;
       let chipClass='cal-task';
       let chipText='';
+      // Helper: title on line 1 (truncated), label on line 2
       const twoLine = (title, label) =>
         `<span class="ct-title">${title}</span><span class="ct-label">${label}</span>`;
 
@@ -1047,7 +1086,7 @@ function renderCalendar() {
         else if (t.dueDate && !t.startDate) chipText = twoLine(esc(t.title), '— End');
         else                                chipText = `<span class="ct-title">${esc(t.title)}</span>`;
       }
-      h+=`<div class="${chipClass}" style="${chipStyle}"
+      h+=`<div class="${chipClass}" style="${chipStyle}" data-tid="${t.id}"
         draggable="true" title="${label}"
         ondragstart="ev_taskDragStart(event,'${t.id}')"
         ondragend="ev_taskDragEnd(event)">${chipText}</div>`;
@@ -1106,6 +1145,7 @@ function renderArchive() {
 // ══════════════════════════════════════
 function ev_taskDragStart(e,id) {
   dragId=id; e.dataTransfer.effectAllowed='move';
+  // Custom drag image — readable label regardless of chip size
   const t=task(id);
   if (t) {
     const img=document.createElement('div');
@@ -1137,38 +1177,7 @@ function ev_panelDrop(e,pid) {
   t.panelId=pid; save(); renderBoard(); renderCalendar();
 }
 
-function ev_panelDragStart(e,pid) {
-  if (e.target.closest('.panel-name-input')) { e.preventDefault(); return; }
-  dragPanelId=pid; e.dataTransfer.effectAllowed='move';
-  e.stopPropagation();
-  setTimeout(()=>{ document.getElementById(`panel-${pid}`)?.style.setProperty('opacity','0.4'); },0);
-}
-function ev_panelDragEnd(e) {
-  if (dragPanelId) { const el=document.getElementById(`panel-${dragPanelId}`); if(el) el.style.removeProperty('opacity'); }
-  dragPanelId=null;
-  document.querySelectorAll('.panel-drop-target').forEach(el=>el.classList.remove('panel-drop-target'));
-}
-function ev_panelReorderOver(e,pid) {
-  if (!dragPanelId||dragPanelId===pid) return;
-  e.preventDefault(); e.stopPropagation();
-  document.querySelectorAll('.panel-drop-target').forEach(el=>el.classList.remove('panel-drop-target'));
-  document.getElementById(`panel-${pid}`)?.classList.add('panel-drop-target');
-}
-function ev_panelReorderLeave(e,pid) {
-  document.getElementById(`panel-${pid}`)?.classList.remove('panel-drop-target');
-}
-function ev_panelReorderDrop(e,pid) {
-  e.preventDefault(); e.stopPropagation();
-  document.getElementById(`panel-${pid}`)?.classList.remove('panel-drop-target');
-  if (!dragPanelId||dragPanelId===pid) return;
-  const g=activeGroup(); if(!g) return;
-  const from=g.panels.findIndex(p=>p.id===dragPanelId);
-  const to=g.panels.findIndex(p=>p.id===pid);
-  if (from===-1||to===-1) return;
-  g.panels.splice(to,0,g.panels.splice(from,1)[0]);
-  dragPanelId=null; save(); renderBoard();
-}
-
+// Panel sort cycling: date → alpha → none → date
 function cyclePanelSort(pid) {
   const g=activeGroup(); if(!g) return;
   const p=g.panels.find(p=>p.id===pid); if(!p) return;
@@ -1177,6 +1186,226 @@ function cyclePanelSort(pid) {
   save(); renderBoard();
 }
 
+// ══════════════════════════════════════
+//  POINTER DRAG — board tasks & panels
+// ══════════════════════════════════════
+const pd={active:false,type:null,id:null,ghost:null,placeholder:null,origEl:null,offX:0,offY:0};
+
+function initTaskPointerDrag(e,taskId){
+  if(e.button!==0||e.target.closest('button')) return;
+  if(pd.active) cleanupPD(); // recover from any stuck state
+  const card=document.getElementById(`tc-${taskId}`); if (!card) return;
+  e.preventDefault();
+  const rect=card.getBoundingClientRect();
+  pd.type='task'; pd.id=taskId; pd.origEl=card;
+  pd.offX=e.clientX-rect.left; pd.offY=e.clientY-rect.top;
+  pd.width=rect.width; pd.height=rect.height;
+  pd.ghost=card.cloneNode(true); pd.ghost.removeAttribute('id');
+  Object.assign(pd.ghost.style,{position:'fixed',zIndex:'9999',pointerEvents:'none',
+    width:rect.width+'px',left:rect.left+'px',top:rect.top+'px',opacity:'0.93',
+    transform:'rotate(2deg) scale(1.04)',boxShadow:'0 20px 60px rgba(0,0,0,0.8)',
+    borderRadius:'var(--radius)',willChange:'left,top',transition:'transform 0.12s,box-shadow 0.12s'});
+  document.body.appendChild(pd.ghost);
+  pd.placeholder=document.createElement('div');
+  pd.placeholder.className='task-placeholder';
+  pd.placeholder.style.cssText=`width:${rect.width}px;height:${rect.height}px;`;
+  pdFlip(card.parentNode,()=>{card.parentNode.insertBefore(pd.placeholder,card);card.style.display='none';},'.task-card');
+  pd.active=true;
+  document.addEventListener('pointermove',onPDMove,{passive:false});
+  document.addEventListener('pointerup',onPDUp);
+  document.addEventListener('pointercancel',()=>cleanupPD(true));
+}
+
+function initPanelPointerDrag(e,panelId){
+  if(e.button!==0||e.target.closest('button,.panel-name-input')) return;
+  if(pd.active) cleanupPD(); // recover from any stuck state
+  const panel=document.getElementById(`panel-${panelId}`); if(!panel) return;
+  e.preventDefault();
+  const rect=panel.getBoundingClientRect();
+  pd.type='panel'; pd.id=panelId; pd.origEl=panel;
+  pd.offX=e.clientX-rect.left; pd.offY=e.clientY-rect.top;
+  pd.width=rect.width; pd.height=rect.height;
+
+  // Ghost: header + task count (same approach as task ghost)
+  const headerEl=panel.querySelector('.panel-header');
+  const taskCount=S.tasks.filter(t=>t.panelId===panelId&&!t.completed).length;
+  pd.ghost=document.createElement('div');
+  pd.ghost.style.cssText=`position:fixed;z-index:9999;pointer-events:none;
+    width:${rect.width}px;left:${rect.left}px;top:${rect.top}px;
+    opacity:0.93;transform:rotate(1deg) scale(1.02);
+    box-shadow:0 20px 60px rgba(0,0,0,0.8);border-radius:var(--radius-lg);
+    overflow:hidden;background:var(--surface);border:1px solid var(--border2);
+    will-change:left,top;transition:transform 0.12s,box-shadow 0.12s;`;
+  if(headerEl){const hc=headerEl.cloneNode(true);hc.style.pointerEvents='none';pd.ghost.appendChild(hc);}
+  const hint=document.createElement('div');
+  hint.style.cssText='padding:8px 14px;font-size:10px;color:var(--text-muted);font-family:"IBM Plex Mono",monospace;opacity:0.7;';
+  hint.textContent=`${taskCount} task${taskCount!==1?'s':''}`;
+  pd.ghost.appendChild(hint);
+  document.body.appendChild(pd.ghost);
+
+  // Placeholder exactly same size as panel — stays in container, other panels FLIP around it
+  pd.placeholder=document.createElement('div');
+  pd.placeholder.className='panel-placeholder';
+  pd.placeholder.style.cssText=`min-width:${rect.width}px;max-width:${rect.width}px;height:${rect.height}px;flex-shrink:0;box-sizing:border-box;`;
+  const container=panel.parentNode;
+  container.insertBefore(pd.placeholder,panel);
+  panel.style.display='none';
+
+  pd.active=true;
+  document.addEventListener('pointermove',onPDMove,{passive:false});
+  document.addEventListener('pointerup',onPDUp);
+  document.addEventListener('pointercancel',()=>cleanupPD(true));
+}
+
+// Layout rect: bounding rect minus any in-progress CSS transform offset
+function pdLayoutRect(el){
+  const r=el.getBoundingClientRect();
+  let dx=0,dy=0;
+  const t=window.getComputedStyle(el).transform;
+  if(t&&t!=='none'){
+    try{ const m=new DOMMatrix(t); dx=m.m41; dy=m.m42; }catch(e){}
+  }
+  return {left:r.left-dx, right:r.right-dx, top:r.top-dy, bottom:r.bottom-dy, width:r.width, height:r.height};
+}
+
+function onPDMove(e){
+  if(!pd.active||!pd.ghost||!pd.placeholder) return;
+  e.preventDefault();
+  pd.ghost.style.left=(e.clientX-pd.offX)+'px';
+  pd.ghost.style.top=(e.clientY-pd.offY)+'px';
+
+  const probeX = e.clientX - pd.offX + pd.width/2;
+  const probeY = e.clientY - pd.offY + pd.height/2;
+
+  if(pd.type==='task'){
+    const board=document.getElementById('panel-container');
+    const tasksHoriz=board?.classList.contains('board-horizontal');
+
+    pd.ghost.style.display='none';
+    const under=document.elementsFromPoint(probeX, probeY) || [];
+    pd.ghost.style.display='';
+
+    // Find panel body under probe; panel-body doesn't animate so elementsFromPoint is reliable for it
+    const body=under.find(el=>el && el.classList && el.classList.contains('panel-body'));
+    if(body){
+      // Iterate cards in this body using LAYOUT rects (unaffected by ongoing animations)
+      const cards=[...body.querySelectorAll('.task-card')].filter(el=>el!==pd.origEl);
+      let card=null, cardRect=null;
+      for(const cd of cards){
+        const r=pdLayoutRect(cd);
+        if(probeX>=r.left && probeX<r.right && probeY>=r.top && probeY<r.bottom){
+          card=cd; cardRect=r; break;
+        }
+      }
+      if(card){
+        const before = tasksHoriz ? probeX<cardRect.left+cardRect.width/2 : probeY<cardRect.top+cardRect.height/2;
+        const target=before?card:card.nextSibling;
+        if(pd.placeholder.nextSibling!==target||pd.placeholder.parentNode!==card.parentNode)
+          pdFlip(card.parentNode,()=>card.parentNode.insertBefore(pd.placeholder,target||null),'.task-card');
+      } else if(!body.contains(pd.placeholder)){
+        pdFlip(body,()=>body.appendChild(pd.placeholder),'.task-card');
+      }
+    }
+
+  } else if(pd.type==='panel'){
+    const container=pd.placeholder.parentNode;
+    if(!container||!container.classList) return;
+    const sideBySide = container.classList.contains('board-vertical');
+    const panels=[...container.querySelectorAll('.panel')].filter(el=>el!==pd.origEl);
+
+    const probe = sideBySide ? probeX : probeY;
+    for(let i=0;i<panels.length;i++){
+      const r=pdLayoutRect(panels[i]);
+      const start = sideBySide ? r.left : r.top;
+      const end   = sideBySide ? r.right : r.bottom;
+      if(probe>=start && probe<end){
+        const before=probe<start+(end-start)/2;
+        const target=before?panels[i]:panels[i].nextSibling;
+        if(pd.placeholder.nextSibling!==target)
+          pdFlip(container,()=>container.insertBefore(pd.placeholder,target||null),'.panel');
+        break;
+      }
+    }
+  }
+}
+
+function onPDUp(){
+  if(!pd.active) return;
+  try {
+    if(pd.type==='task'){
+      const body=pd.placeholder?.parentNode;
+      if(body){
+        const panelId=body.id?.replace('pbody-','');
+        const t=task(pd.id);
+        if(t&&panelId){
+          t.panelId=panelId;
+          const g=activeGroup(),p=g?.panels.find(p=>p.id===panelId);
+          if(p?.sort==='none'){
+            const phIdx=[...body.children].indexOf(pd.placeholder);
+            const nextCard=[...body.children].slice(phIdx+1).find(el=>el.classList?.contains('task-card')&&el!==pd.origEl);
+            const nt=nextCard?task(nextCard.id.replace('tc-','')):null;
+            const fi=S.tasks.indexOf(t);
+            if(fi>=0) S.tasks.splice(fi,1);
+            if(nt){const ti=S.tasks.indexOf(nt);S.tasks.splice(ti,0,t);}
+            else S.tasks.push(t);
+          }
+          save();
+        }
+      }
+    } else if(pd.type==='panel'){
+      const container=pd.placeholder?.parentNode;
+      const g=activeGroup();
+      if(g && container){
+        const order=[...container.children].map(el=>{
+          if(el.classList?.contains('panel-placeholder')) return pd.id;
+          if(el===pd.origEl) return null;
+          return el.id?.replace('panel-','');
+        }).filter(Boolean);
+        g.panels.sort((a,b)=>order.indexOf(a.id)-order.indexOf(b.id));
+        save();
+      }
+    }
+  } catch(err){
+    console.error('Drop error:', err);
+  } finally {
+    cleanupPD();
+    renderBoard();
+    renderCalendar();
+  }
+}
+
+function cleanupPD(cancel=false){
+  pd.ghost?.remove(); pd.placeholder?.remove();
+  if(pd.origEl){
+    pd.origEl.style.display=''; pd.origEl.style.visibility='';
+    pd.origEl.style.opacity=''; pd.origEl.style.pointerEvents='';
+  }
+  Object.assign(pd,{active:false,type:null,id:null,ghost:null,placeholder:null,origEl:null});
+  document.removeEventListener('pointermove',onPDMove);
+  document.removeEventListener('pointerup',onPDUp);
+  if(cancel) renderBoard();
+}
+
+function pdFlip(container,action,sel,exclude){
+  if(!container){action();return;}
+  const items=[...container.querySelectorAll(sel)].filter(el=>el!==exclude);
+  // Read current visual positions (mid-animation positions are fine — we animate from where we ARE)
+  const first=new Map(); items.forEach(el=>first.set(el,el.getBoundingClientRect()));
+  action();
+  items.forEach(el=>{
+    const f=first.get(el); if(!f) return;
+    const r=el.getBoundingClientRect();
+    const dx=f.left-r.left,dy=f.top-r.top; if(!dx&&!dy) return;
+    el.style.transition='none'; el.style.transform=`translate(${dx}px,${dy}px)`;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      el.style.transition='transform 0.2s cubic-bezier(0.2,0,0,1)';
+      el.style.transform='';
+      el.addEventListener('transitionend',()=>{el.style.transition='';el.style.transform='';},{once:true});
+    }));
+  });
+}
+
+// Safe UTC-only date helpers — avoids timezone-shift bugs with ISO strings
 function daysBetween(isoA, isoB) {
   const p = s => { const [y,m,d]=s.split('-').map(Number); return Date.UTC(y,m-1,d); };
   return Math.round((p(isoB)-p(isoA))/86400000);
@@ -1245,11 +1474,24 @@ function deletePanel(pid) {
 }
 
 const PASTELS=[
-  '#ffb3ba','#ffcba4','#ffe5a0','#b8f0b0','#a0d8ef',
-  '#c4b5fd','#f9a8d4','#99f6e4','#fcd34d','#86efac',
-  '#fb923c','#38bdf8','#a78bfa','#f472b6','#34d399',
-  '#6b7280','#374151','#1f2937','#475569','#334155',
-  '#ffffff','#e2e8f0','#111111',
+  // Reds — lightest → darkest
+  '#fff0f0','#ffb3ba','#ff6b81','#e5264a','#9b1d20','#4a0010',
+  // Oranges
+  '#fff5e6','#ffcba4','#ff9843','#d4610a','#8b3500','#3d1800',
+  // Yellows
+  '#fffde7','#ffe5a0','#ffd700','#d4a017','#7a5900','#332400',
+  // Greens
+  '#edfaed','#b8f0b0','#50c878','#1a8a3c','#0d4d22','#051a0a',
+  // Teals
+  '#e0fafa','#99f6e4','#26c6da','#00838f','#004d55','#001a1d',
+  // Blues
+  '#e3f2fd','#a0d8ef','#42a5f5','#1565c0','#0a3570','#040f24',
+  // Purples
+  '#f5e6ff','#c4b5fd','#9333ea','#5b21b6','#2e0a6e','#100026',
+  // Pinks
+  '#fde8f0','#f9a8d4','#e91e63','#9c1152','#550031','#200010',
+  // Neutrals
+  '#ffffff','#e2e8f0','#94a3b8','#475569','#1e293b','#111111',
 ];
 function openPanelColor(pid) {
   closeModals();
@@ -1381,14 +1623,14 @@ function openSettings() {
   function sRow(id,name,color) {
     return `<tr id="srow-${id}">
       <td><input class="stbl-input" value="${esc(name)}" id="sn-${id}" placeholder="Subject name"></td>
-      <td><input type="color" class="stbl-color" value="${color}" id="sc-${id}"></td>
+      <td><div class="stbl-color-btn" id="scb-${id}" style="background:${color}" onclick="openInlineColor('sc-${id}','scb-${id}')"></div><input type="hidden" id="sc-${id}" value="${color}"></td>
       <td><button class="stbl-del" onclick="document.getElementById('srow-${id}').remove()">&#x2715;</button></td>
     </tr>`;
   }
   function tRow(id,name,color) {
     return `<tr id="trow-${id}">
       <td><input class="stbl-input" value="${esc(name)}" id="tn-${id}" placeholder="Type name"></td>
-      <td><input type="color" class="stbl-color" value="${color}" id="tc-${id}"></td>
+      <td><div class="stbl-color-btn" id="tcb-${id}" style="background:${color}" onclick="openInlineColor('tc-${id}','tcb-${id}')"></div><input type="hidden" id="tc-${id}" value="${color}"></td>
       <td><button class="stbl-del" onclick="document.getElementById('trow-${id}').remove()">&#x2715;</button></td>
     </tr>`;
   }
@@ -1432,7 +1674,8 @@ function openSettings() {
     <div class="stbl-section">
       <div class="stbl-title">Background</div>
       <div class="form-group">
-        <label class="form-label">Solid Colour <span style="opacity:.4">(overridden by image)</span></label>
+        <label class="form-label">Board Colour <span style="opacity:.4">(overridden by image)</span></label>
+        <div class="pastel-grid" style="margin-bottom:8px;">${PASTELS.map(c=>`<div class="pastel-swatch${bgColor===c?' sel':''}" style="background:${c};${c==='#111111'?'outline:1px solid #555;':''}" title="${c}" onclick="setBoardBgColor('${c}')"></div>`).join('')}</div>
         <div style="display:flex;gap:10px;align-items:center;">
           <input type="color" id="bg-color" value="${bgColor||'#0c0c0f'}"
             style="width:48px;height:34px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;"
@@ -1468,7 +1711,7 @@ function addSubjRow() {
   const id=uid();
   document.getElementById('subj-tbody').insertAdjacentHTML('beforeend',
     `<tr id="srow-${id}"><td><input class="stbl-input" id="sn-${id}" placeholder="Subject name"></td>
-     <td><input type="color" class="stbl-color" value="#a8d8ea" id="sc-${id}"></td>
+     <td><div class="stbl-color-btn" id="scb-${id}" style="background:#a8d8ea" onclick="openInlineColor('sc-${id}','scb-${id}')"></div><input type="hidden" id="sc-${id}" value="#a8d8ea"></td>
      <td><button class="stbl-del" onclick="document.getElementById('srow-${id}').remove()">&#x2715;</button></td></tr>`);
   document.getElementById(`sn-${id}`)?.focus();
 }
@@ -1476,7 +1719,7 @@ function addTypeRow() {
   const id=uid();
   document.getElementById('type-tbody').insertAdjacentHTML('beforeend',
     `<tr id="trow-${id}"><td><input class="stbl-input" id="tn-${id}" placeholder="Type name"></td>
-     <td><input type="color" class="stbl-color" value="#b5ead7" id="tc-${id}"></td>
+     <td><div class="stbl-color-btn" id="tcb-${id}" style="background:#b5ead7" onclick="openInlineColor('tc-${id}','tcb-${id}')"></div><input type="hidden" id="tc-${id}" value="#b5ead7"></td>
      <td><button class="stbl-del" onclick="document.getElementById('trow-${id}').remove()">&#x2715;</button></td></tr>`);
   document.getElementById(`tn-${id}`)?.focus();
 }
@@ -1560,7 +1803,7 @@ function confirmModal(msg, onConfirm) {
       <div class="modal-title" style="font-size:14px;margin-bottom:6px;">${msg}</div>
       <div class="modal-actions" style="justify-content:center;margin-top:16px;">
         <button class="btn btn-ghost" id="confirm-cancel-btn">Cancel</button>
-        <button class="btn" style="background:rgba(200,60,60,0.2);color:#e05555;border:1px solid #5a1a1a;" id="confirm-ok-btn">Confirm</button>
+        <button class="btn" style="background:rgba(200,60,60,0.2);color:#e05555;border:1px solid #5a1a1a;" id="confirm-ok-btn">Delete</button>
       </div>
     </div>`);
   document.getElementById('modals').appendChild(m);
@@ -1571,6 +1814,45 @@ function confirmModal(msg, onConfirm) {
 // ══════════════════════════════════════
 //  BACKGROUND
 // ══════════════════════════════════════
+function openInlineColor(inputId, btnId) {
+  document.querySelector('.inline-color-picker')?.remove();
+  const btn=document.getElementById(btnId); if(!btn) return;
+  const rect=btn.getBoundingClientRect();
+  const cur=document.getElementById(inputId)?.value||'#ffffff';
+  const swatches=PASTELS.map(c=>
+    `<div class="pastel-swatch${cur===c?' sel':''}" style="background:${c}" title="${c}"
+      onclick="setInlineColor('${inputId}','${btnId}','${c}')"></div>`
+  ).join('');
+  const picker=document.createElement('div');
+  picker.className='inline-color-picker';
+  // Position below button, flip up if too close to bottom
+  const spaceBelow=window.innerHeight-rect.bottom;
+  picker.style.left=Math.min(rect.left, window.innerWidth-230)+'px';
+  picker.style.top=(spaceBelow>260?rect.bottom+4:rect.top-260-4)+'px';
+  picker.innerHTML=`<div class="pastel-grid">${swatches}</div>
+    <input type="color" value="${cur}"
+      style="width:100%;height:28px;border-radius:4px;border:1px solid var(--border);background:var(--surface3);cursor:pointer;"
+      oninput="setInlineColor('${inputId}','${btnId}',this.value,false)">`;
+  document.body.appendChild(picker);
+  setTimeout(()=>{
+    function outside(e){ if(!picker.contains(e.target)&&e.target.id!==btnId){picker.remove();document.removeEventListener('pointerdown',outside);} }
+    document.addEventListener('pointerdown',outside);
+  },10);
+}
+function setInlineColor(inputId, btnId, color, close=true) {
+  const inp=document.getElementById(inputId), btn=document.getElementById(btnId);
+  if(inp) inp.value=color;
+  if(btn) btn.style.background=color;
+  document.querySelector('.inline-color-picker')?.querySelectorAll('.pastel-swatch').forEach(s=>s.classList.toggle('sel',s.title===color));
+  if(close) document.querySelector('.inline-color-picker')?.remove();
+}
+
+function setBoardBgColor(col) {
+  const inp=document.getElementById('bg-color');
+  if(inp) inp.value=col;
+  document.querySelectorAll('.pastel-swatch').forEach(sw=>sw.classList.toggle('sel',sw.title===col));
+  previewBgColor(col);
+}
 function previewBgColor(col) {
   const bl=document.getElementById('bg-layer');
   bl.style.backgroundImage=''; bl.style.filter=''; bl.style.transform='';
