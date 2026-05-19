@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,15 +20,23 @@
   --accent: #5b8fff;
   --radius: 8px;
   --radius-lg: 12px;
+  /* chrome heights — kept here so calc()s stay in sync */
+  --header-h: 52px;
+  --tabs-bar-h: 36px;
+  --chrome-h: 88px;            /* header + tabs */
+  --board-vert-reserve: 140px; /* vertical-layout panel max-height padding */
+  --mobile-header-h: 48px;
+  --mobile-chrome-h: 84px;
+  --mobile-vert-reserve: 120px;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Syne', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+body { font-family: 'Syne', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
 #bg-layer { position: fixed; inset: 0; z-index: -1; background-size: cover; background-position: center; transition: filter 0.3s; }
 
 /* ══ TOP NAV ══ */
 header {
   display: flex; align-items: center;
-  padding: 0 16px; height: 52px;
+  padding: 0 16px; height: var(--header-h);
   background: rgba(12,12,15,0.92); backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
   position: sticky; top: 0; z-index: 200; gap: 12px;
@@ -72,17 +79,18 @@ header {
   box-shadow: 0 8px 32px rgba(0,0,0,0.6);
   transition: transform 0.25s cubic-bezier(.2,.8,.4,1), opacity 0.25s;
   opacity: 0; pointer-events: none;
+  display: flex; align-items: center; gap: 10px; white-space: nowrap;
 }
-#toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+#toast.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
 
 /* ══ VIEWS ══ */
 .view-content { display: none; }
 .view-content.active { display: block; }
 
-.board-tabs-bar { display: flex; align-items: center; padding: 0 12px; height: 36px; background: rgba(12,12,15,0.88); border-bottom: 1px solid var(--border); position: sticky; top: 52px; z-index: 190; backdrop-filter: blur(12px); }
+.board-tabs-bar { display: flex; align-items: center; padding: 0 12px; height: var(--tabs-bar-h); background: rgba(12,12,15,0.88); border-bottom: 1px solid var(--border); position: sticky; top: var(--header-h); z-index: 190; backdrop-filter: blur(12px); }
 
-/* Board view height accounts for header (52px) + board-tabs-bar (36px) */
-#board-view.view-content.active { display: flex; flex-direction: column; height: calc(100vh - 88px); overflow: hidden; }
+/* Board view height accounts for header + board-tabs-bar */
+#board-view.view-content.active { display: flex; flex-direction: column; height: calc(100vh - var(--chrome-h)); overflow: hidden; }
 #board-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 10px 20px 0; overflow: hidden; }
 
 /* ══ BOARD ══ */
@@ -92,7 +100,7 @@ header {
 /* Horizontal layout: panels stack vertically, scroll within board-wrap */
 #panel-container.board-horizontal { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-bottom: 20px; }
 #panel-container.board-horizontal .panel { background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); margin-bottom: 14px; overflow: hidden; min-width: 260px; transition: opacity 0.2s, border-color 0.2s; }
-#panel-container.board-horizontal .task-card { width: auto; }
+#panel-container.board-horizontal .task-card { width: auto; max-width: 280px; }
 #panel-container.board-horizontal .task-title { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
 #panel-container.board-horizontal .panel-body { padding: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(186px, 1fr)); gap: 10px; min-height: 76px; transition: background 0.15s; }
 
@@ -153,12 +161,16 @@ header {
 .filter-chip span { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-muted); }
 .filter-chip.checked { border-color: var(--border2); background: var(--surface3); }
 .filter-chip.checked span { color: var(--text); }
+.filter-bar-toggle { margin-left: auto; padding: 4px 10px; border-radius: 5px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 9px; cursor: pointer; letter-spacing: 0.5px; transition: all 0.15s; }
+.filter-bar-toggle:hover { color: var(--text); border-color: var(--border2); }
 
 /* ══ CALENDAR ══ */
 .cal-body { padding: 20px; }
 .cal-header { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
 .cal-nav-btn { width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
 .cal-nav-btn:hover { border-color: var(--border2); }
+.cal-today-btn { padding: 0 12px; height: 30px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-dim); cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.5px; transition: all 0.15s; }
+.cal-today-btn:hover { color: var(--text); border-color: var(--border2); }
 #cal-month-title { font-size: 17px; font-weight: 700; }
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
 .cal-day-hdr { background: var(--surface2); padding: 7px; text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-muted); letter-spacing: 1px; }
@@ -175,6 +187,18 @@ header {
 .cal-task.cal-dragging { opacity: 0.25; outline: 2px dashed rgba(255,255,255,0.4); outline-offset: -2px; }
 .ct-title { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 10px; }
 .ct-label { display: block; font-size: 8px; opacity: 0.8; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ct-label-end { text-align: right; }
+.ct-label-row { display: flex; justify-content: space-between; gap: 4px; margin-top: 1px; font-size: 8px; opacity: 0.8; overflow: hidden; }
+.ct-label-row span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; }
+.ct-label-row span:last-child { text-align: right; }
+.cal-more { font-size: 9px; line-height: 1; padding: 2px 5px; border-radius: 3px; background: rgba(91,143,255,0.15); color: var(--accent); cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-weight: 600; display: inline-block; margin-top: 2px; }
+.cal-more:hover { background: rgba(91,143,255,0.25); }
+.cal-day-popover { position: fixed; z-index: 8000; background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; padding: 8px; box-shadow: 0 12px 40px rgba(0,0,0,0.6); max-width: 280px; }
+.cal-day-popover .cal-task { width: auto !important; margin-left: 0 !important; margin-right: 0 !important; border-radius: 3px !important; border-left: 3px solid var(--border2) !important; border-right: none !important; }
+.cal-day-popover-title { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 0.5px; }
+/* Continuation indicators for tasks spanning beyond visible month */
+.cal-task .ct-cont-prev { font-weight: 800; opacity: 0.6; margin-right: 2px; }
+.cal-task .ct-cont-next { font-weight: 800; opacity: 0.6; margin-left: 2px; }
 
 /* ══ ARCHIVE ══ */
 .archive-body { padding: 20px; }
@@ -244,11 +268,12 @@ header {
 /* ══ POINTER DRAG ══ */
 .pd-ghost { position:fixed; z-index:9999; pointer-events:none; opacity:0.93; transform:rotate(2deg) scale(1.04); box-shadow:0 20px 60px rgba(0,0,0,0.8); border-radius:var(--radius); will-change:left,top; }
 .task-placeholder { border-radius:var(--radius); background:rgba(91,143,255,0.08); border:2px dashed rgba(91,143,255,0.4); flex-shrink:0; box-sizing:border-box; }
+.panel-body > .task-placeholder:only-child { grid-column:1 / -1; min-height:60px; width:100%; }
 .panel-placeholder { border-radius:var(--radius-lg); background:rgba(91,143,255,0.05); border:2px dashed rgba(91,143,255,0.3); flex-shrink:0; box-sizing:border-box; }
 
 /* ══ MODALS ══ */
 .modal-bd { position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 16px; }
-.modal { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius-lg); padding: 22px; width: 460px; max-width: 100%; max-height: 88vh; overflow-y: auto; }
+.modal { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius-lg); padding: 22px; width: 460px; max-width: 100%; max-height: 88vh; overflow-y: auto; overscroll-behavior: contain; }
 .modal-title { font-size: 16px; font-weight: 800; margin-bottom: 18px; }
 .form-group { margin-bottom: 13px; }
 .form-label { display: block; font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 5px; }
@@ -312,13 +337,13 @@ input[type="number"].form-input::-webkit-inner-spin-button { -webkit-appearance:
 @media (max-width: 640px) {
   /* Header — compress to fit 4 tabs + board tabs + gear */
   .logo { display: none; }
-  header { padding: 0 10px; height: 48px; gap: 6px; }
+  header { padding: 0 10px; height: var(--mobile-header-h); gap: 6px; }
   .view-tabs { overflow-x: auto; flex-shrink: 0; gap: 1px; }
   .view-tabs::-webkit-scrollbar { height: 0; }
   .view-tab-btn { padding: 5px 8px; font-size: 11px; white-space: nowrap; flex-shrink: 0; }
   .nav-sep { display: none; }
-  .board-tabs-bar { top: 48px; padding: 0 10px; }
-  #board-view.view-content.active { height: calc(100vh - 84px); }
+  .board-tabs-bar { top: var(--mobile-header-h); padding: 0 10px; }
+  #board-view.view-content.active { height: calc(100vh - var(--mobile-chrome-h)); }
   .group-tabs-wrap { min-width: 0; }
   .group-tab-btn { padding: 4px 8px; font-size: 11px; }
   .hdr-btn { width: 36px; height: 36px; font-size: 17px; flex-shrink: 0; }
@@ -329,13 +354,12 @@ input[type="number"].form-input::-webkit-inner-spin-button { -webkit-appearance:
   #board-view.view-content.active { height: auto; overflow: visible; }
   #board-wrap { padding: 12px 12px 0; overflow: visible; }
 
-  /* Horizontal layout: 3 tasks per row */
+  /* Horizontal layout: inherits desktop auto-fill grid */
   #panel-container.board-horizontal { padding: 0 !important; overflow-y: visible; }
-  #panel-container.board-horizontal .panel-body { grid-template-columns: repeat(3, 1fr) !important; }
 
   /* Vertical layout: keep horizontal swipe, panels take most of screen width */
   #panel-container.board-vertical { display: flex !important; flex-direction: row !important; overflow-x: auto !important; overflow-y: visible; align-items: flex-start; gap: 10px; padding: 0 0 16px !important; max-height: none; }
-  #panel-container.board-vertical .panel { min-width: 240px !important; max-width: 240px !important; max-height: calc(100vh - 120px); margin-bottom: 0; }
+  #panel-container.board-vertical .panel { min-width: 240px !important; max-width: 240px !important; max-height: calc(100vh - var(--mobile-vert-reserve)); margin-bottom: 0; }
   #panel-container.board-vertical .panel-body { max-height: none !important; overflow-y: auto !important; }
   #panel-container.board-vertical .task-card { width: 100% !important; }
   #panel-container.board-vertical .panel-header { padding: 8px 10px; gap: 5px 6px; }
@@ -361,6 +385,7 @@ input[type="number"].form-input::-webkit-inner-spin-button { -webkit-appearance:
   .cal-task-gap { height: 26px !important; margin-bottom: 2px !important; }
   .ct-title { font-size: 8px; }
   .ct-label { font-size: 7px; }
+  .ct-label-row { font-size: 6px; gap: 2px; }
   .filter-bar { padding: 8px 12px; gap: 6px; flex-wrap: wrap; }
   .filter-chip span { font-size: 9px; }
   .dim-note { font-size: 9px; }
@@ -405,26 +430,26 @@ input[type="number"].form-input::-webkit-inner-spin-button { -webkit-appearance:
 
 <header>
   <div class="logo">TASKBOARD</div>
-  <div class="view-tabs">
-    <button class="view-tab-btn active" onclick="switchView('board',this)">Board</button>
-    <button class="view-tab-btn" onclick="switchView('calendar',this)">Calendar</button>
-    <button class="view-tab-btn" onclick="switchView('archive',this)">Archive</button>
-    <button class="view-tab-btn" onclick="switchView('allboards',this)">All Boards</button>
+  <div class="view-tabs" role="tablist">
+    <button class="view-tab-btn active" data-view="board" onclick="switchView('board',this)" role="tab" aria-label="Board view">Board</button>
+    <button class="view-tab-btn" data-view="calendar" onclick="switchView('calendar',this)" role="tab" aria-label="Calendar view">Calendar</button>
+    <button class="view-tab-btn" data-view="archive" onclick="switchView('archive',this)" role="tab" aria-label="Archive view">Archive</button>
+    <button class="view-tab-btn" data-view="allboards" onclick="switchView('allboards',this)" role="tab" aria-label="All boards">All Boards</button>
   </div>
   <div style="flex:1"></div>
-  <button class="hdr-io-btn save" onclick="exportSave()" title="Export save file">
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+  <button class="hdr-io-btn save" onclick="exportSave()" title="Export save file" aria-label="Export save file">
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M8 1v9M5 7l3 3 3-3"/><rect x="2" y="11" width="12" height="4" rx="1"/>
     </svg>
     <span>Export</span>
   </button>
-  <button class="hdr-io-btn load" onclick="triggerImport()" title="Import save file">
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+  <button class="hdr-io-btn load" onclick="triggerImport()" title="Import save file" aria-label="Import save file">
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M8 11V2M5 5l3-3 3 3"/><rect x="2" y="11" width="12" height="4" rx="1"/>
     </svg>
     <span>Import</span>
   </button>
-  <button class="hdr-btn" onclick="openSettings()" title="Settings">&#9881;</button>
+  <button class="hdr-btn" onclick="openSettings()" title="Settings" aria-label="Open settings">&#9881;</button>
 </header>
 
 <!-- Board tabs sub-bar -->
@@ -435,23 +460,22 @@ input[type="number"].form-input::-webkit-inner-spin-button { -webkit-appearance:
 <div id="toast"></div>
 
 <!-- BOARD -->
-<div id="board-view" class="view-content active">
+<div id="board-view" class="view-content active" role="region" aria-label="Board view">
   <div id="board-wrap">
-    <div style="padding:20px 20px 0;">
-      <button class="add-panel-btn" onclick="addPanel()">+ NEW PANEL</button>
-    </div>
+    <button class="add-panel-btn" onclick="addPanel()" aria-label="Add new panel">+ NEW PANEL</button>
     <div id="panel-container" class="board-horizontal"></div>
   </div>
 </div>
 
 <!-- CALENDAR -->
-<div id="calendar-view" class="view-content">
+<div id="calendar-view" class="view-content" role="region" aria-label="Calendar view">
   <div class="filter-bar" id="cal-filter-bar"></div>
   <div class="cal-body">
     <div class="cal-header">
-      <button class="cal-nav-btn" onclick="calNav(-1)">&#8249;</button>
-      <button class="cal-nav-btn" onclick="calNav(1)">&#8250;</button>
-      <div id="cal-month-title"></div>
+      <button class="cal-nav-btn" onclick="calNav(-1)" aria-label="Previous month">&#8249;</button>
+      <button class="cal-nav-btn" onclick="calNav(1)" aria-label="Next month">&#8250;</button>
+      <button class="cal-today-btn" onclick="calToday()" aria-label="Jump to today">TODAY</button>
+      <div id="cal-month-title" aria-live="polite"></div>
     </div>
     <div class="cal-grid" id="cal-grid"></div>
     <div class="dim-note" style="margin-top:12px;">Drag tasks on the calendar to reschedule them.</div>
@@ -459,7 +483,7 @@ input[type="number"].form-input::-webkit-inner-spin-button { -webkit-appearance:
 </div>
 
 <!-- ARCHIVE -->
-<div id="archive-view" class="view-content">
+<div id="archive-view" class="view-content" role="region" aria-label="Archive view">
   <div class="filter-bar" id="arc-filter-bar"></div>
   <div class="archive-body">
     <div class="section-hdr"><h2>Completed Tasks</h2></div>
@@ -468,11 +492,11 @@ input[type="number"].form-input::-webkit-inner-spin-button { -webkit-appearance:
 </div>
 
 <!-- ALL BOARDS -->
-<div id="allboards-view" class="view-content">
+<div id="allboards-view" class="view-content" role="region" aria-label="All boards view">
   <div class="ab-body">
     <div class="ab-header">
       <h2>All Boards</h2>
-      <button class="ab-new-btn" onclick="addGroup()">+ New Board</button>
+      <button class="ab-new-btn" onclick="addGroup()" aria-label="Create new board">+ New Board</button>
     </div>
     <div id="ab-list"></div>
   </div>
@@ -493,18 +517,132 @@ let activeGroupId = null;
 let calFilterIds = null;
 let arcFilterIds = null;
 let _pendingBgData = null;
+let _undoBuf = null;          // last delete, for undo
+let _undoToastTimer = null;
+let _lastTodayISO = null;     // for setInterval freshness check
+let _panelByIdCache = null;   // built lazily
+
+// Build / invalidate the panel lookup cache (O(1) panel lookups after first call)
+function invalidatePanelCache() { _panelByIdCache = null; }
+function panelByIdCached(id) {
+  if (!_panelByIdCache) {
+    _panelByIdCache = new Map();
+    for (const g of S.groups) for (const p of g.panels) _panelByIdCache.set(p.id, {panel:p, group:g});
+  }
+  return _panelByIdCache.get(id) || null;
+}
+
+// ── UNDO STACK (single-step) ───────────────────────────
+// _undoBuf shape: { kind, label, ...payload }
+function _pushUndo(entry) {
+  _undoBuf = entry;
+  showUndoToast(entry.label);
+}
+function _doUndo() {
+  if (!_undoBuf) return;
+  const u = _undoBuf; _undoBuf = null;
+  hideUndoToast();
+  try {
+    if (u.kind === 'task') {
+      S.tasks.splice(Math.min(u.index, S.tasks.length), 0, u.task);
+    } else if (u.kind === 'panel') {
+      const g = groupById(u.groupId);
+      if (g) {
+        g.panels.splice(Math.min(u.index, g.panels.length), 0, u.panel);
+        u.tasks.forEach(t => S.tasks.push(t));
+      }
+    } else if (u.kind === 'group') {
+      S.groups.push(u.group);
+      u.tasks.forEach(t => S.tasks.push(t));
+      if (u.wasActive) activeGroupId = u.group.id;
+    }
+    invalidatePanelCache();
+    save();
+    renderGroupTabs(); renderBoard(); renderCalendar(); renderArchive(); renderAllBoards();
+    renderCalFilter(); renderArcFilter(); applyBg();
+    showToast('&#x21A9; Restored.');
+  } catch(e) {
+    showToast('Undo failed: '+e.message);
+  }
+}
+function showUndoToast(label) {
+  hideUndoToast();
+  const t = document.getElementById('toast');
+  t.innerHTML = `${esc(label)} &nbsp; <button id="undo-toast-btn" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.25);color:#fff;padding:3px 9px;border-radius:4px;font:600 10px 'IBM Plex Mono',monospace;cursor:pointer;margin-left:6px;letter-spacing:0.5px;">UNDO</button>`;
+  t.classList.add('show');
+  // Stop the regular toast timer from clearing this one
+  clearTimeout(_toastTimer);
+  document.getElementById('undo-toast-btn')?.addEventListener('click', _doUndo);
+  _undoToastTimer = setTimeout(()=>{
+    t.classList.remove('show');
+    _undoBuf = null;
+  }, 8000);
+}
+function hideUndoToast() {
+  clearTimeout(_undoToastTimer);
+  const t = document.getElementById('toast');
+  if (t) t.classList.remove('show');
+}
+
+// ── FOCUS TRAP for modals ──────────────────────────────
+function trapFocus(root) {
+  if (!root) return;
+  const sel = 'a[href],button:not([disabled]),input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"]),[contenteditable="true"]';
+  function onKey(e) {
+    if (e.key !== 'Tab') return;
+    const items = [...root.querySelectorAll(sel)].filter(el => el.offsetParent !== null);
+    if (!items.length) return;
+    const first = items[0], last = items[items.length-1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+  root.addEventListener('keydown', onKey);
+}
+
+// ── DEBOUNCED SAVE — bundles rapid mutations ───────────
+let _saveTimer = null;
+function saveDebounced() {
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(save, 250);
+}
+
+// Image size limits
+const MAX_BG_IMAGE_BYTES = 1_500_000;       // ~1.5MB raw upload
+const MAX_BG_DATA_URL_LEN = 2_000_000;       // ~2MB after compression
+const MAX_IMPORT_BYTES = 15_000_000;         // 15MB import file cap
 
 function load() {
   try {
     const raw = localStorage.getItem('tb3_state');
     if (raw) {
-      S = JSON.parse(raw);
-      S.groups.forEach(g => { g.settings = Object.assign(DEFAULT_SETTINGS(), g.settings||{}); });
-    } else {
-      const old = localStorage.getItem('tb2_state');
-      if (old) { migrateOld(JSON.parse(old)); return; }
+      const parsed = JSON.parse(raw);
+      if (!parsed || !Array.isArray(parsed.groups) || !Array.isArray(parsed.tasks)) {
+        throw new Error('Saved state has wrong shape.');
+      }
+      S = parsed;
+      S.groups.forEach(g => {
+        g.settings = Object.assign(DEFAULT_SETTINGS(), g.settings||{});
+        g.subjects = g.subjects || [];
+        g.taskTypes = g.taskTypes || [];
+        g.panels = g.panels || [];
+      });
+      invalidatePanelCache();
+      return;
     }
-  } catch(e) {}
+    const old = localStorage.getItem('tb2_state');
+    if (old) { migrateOld(JSON.parse(old)); return; }
+  } catch(e) {
+    // Back up corrupt blob so user data isn't silently lost
+    try {
+      const raw = localStorage.getItem('tb3_state');
+      if (raw) {
+        const key = 'tb3_corrupt_' + Date.now();
+        localStorage.setItem(key, raw);
+        setTimeout(() => showToast(`&#x26A0; Saved data was corrupt — backed up to "${key}". Starting fresh.`), 100);
+      }
+    } catch(_) {}
+    S = { groups:[], tasks:[] };
+  }
   if (!S.groups.length) createGroup('My Board');
 }
 
@@ -538,7 +676,7 @@ function calVisibleGroups() { return calFilterIds ? S.groups.filter(g=>calFilter
 function arcVisibleGroups() { return arcFilterIds ? S.groups.filter(g=>arcFilterIds.has(g.id)) : S.groups; }
 function subj(id, g)  { return (g||activeGroup())?.subjects.find(s=>s.id===id) || null; }
 function ttype(id, g) { return (g||activeGroup())?.taskTypes.find(t=>t.id===id) || null; }
-function panelObj(id) { for (const g of S.groups) { const p=g.panels.find(p=>p.id===id); if(p) return p; } return null; }
+function panelObj(id) { return panelByIdCached(id)?.panel || null; }
 function task(id)     { return S.tasks.find(t=>t.id===id) || null; }
 
 // ══════════════════════════════════════
@@ -562,22 +700,36 @@ function triggerImport() {
 }
 function handleImportFile(input) {
   const file=input.files[0]; if(!file) return;
+  if (file.size > MAX_IMPORT_BYTES) {
+    showToast('&#x2715; Import failed — file too large (max ' + Math.round(MAX_IMPORT_BYTES/1e6) + 'MB)');
+    return;
+  }
   const reader=new FileReader();
   reader.onload=e=>{
     try {
       const parsed=JSON.parse(e.target.result);
       if(!parsed.groups||!Array.isArray(parsed.groups)||!Array.isArray(parsed.tasks))
         throw new Error('File does not look like a Taskboard save.');
+      if(!parsed.groups.length)
+        throw new Error('Save contains no boards.');
+      // Normalize each group's required fields (defensive against partial exports)
+      parsed.groups.forEach(g=>{
+        g.settings = Object.assign(DEFAULT_SETTINGS(), g.settings||{});
+        g.panels   = Array.isArray(g.panels)   ? g.panels   : [];
+        g.subjects = Array.isArray(g.subjects) ? g.subjects : [];
+        g.taskTypes= Array.isArray(g.taskTypes)? g.taskTypes: [];
+      });
       confirmModal(`Load "${file.name}"? This will replace all current boards and tasks.`,()=>{
-        parsed.groups.forEach(g=>{g.settings=Object.assign(DEFAULT_SETTINGS(),g.settings||{});});
         S=parsed; activeGroupId=S.groups[0]?.id||null;
         calFilterIds=null; arcFilterIds=null;
+        invalidatePanelCache();
         save(); renderGroupTabs(); renderBoard();
         renderCalFilter(); renderArcFilter(); applyBg();
-        showToast('&#10003; Loaded from '+file.name);
-      });
-    } catch(err){ showToast('&#x2715; Import failed — '+err.message); }
+        showToast('&#10003; Loaded from '+esc(file.name));
+      }, {okLabel:'Load', destructive:false});
+    } catch(err){ showToast('&#x2715; Import failed — '+esc(err.message)); }
   };
+  reader.onerror = () => showToast('&#x2715; Could not read file.');
   reader.readAsText(file);
 }
 
@@ -604,10 +756,19 @@ function daysUntil(iso) {
   const todayUtc=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate());
   return Math.round((due-todayUtc)/86400000);
 }
-function todayISO() { return new Date().toISOString().slice(0,10); }
+function todayISO() {
+  const n=new Date();
+  return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
+}
+// Parse ISO 'YYYY-MM-DD' as a date in the local timezone — no UTC interpretation.
+// Avoids `new Date('2026-05-19')` (UTC midnight) shifting one day in negative-offset TZs.
+function parseISOLocal(iso) {
+  const [y,m,d]=iso.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
 function fmtDate(iso) {
   if (!iso) return '';
-  const d=new Date(iso);
+  const d=parseISOLocal(iso);
   return `${d.getDate()}/${String(d.getMonth()+1).padStart(2,'0')}`;
 }
 function formatDateLabel(iso) {
@@ -621,7 +782,7 @@ function formatDateLabel(iso) {
 }
 function formatArchiveDate(iso) {
   if (!iso) return '—';
-  const d=new Date(iso);
+  const d=parseISOLocal(iso);
   return `${d.getDate()} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]} ${d.getFullYear()}`;
 }
 function dateBadgeStyle(iso) {
@@ -682,12 +843,12 @@ function esc(s) {
 }
 function panelTasks(pid) {
   let tasks = S.tasks.filter(t=>t.panelId===pid&&!t.completed);
-  const p = (()=>{ for(const g of S.groups){const f=g.panels.find(p=>p.id===pid);if(f)return f;} return null; })();
+  const p = panelByIdCached(pid)?.panel || null;
   const sort = p?.sort || 'date';
   if (sort==='date') tasks.sort((a,b)=>{
     if (!a.dueDate&&!b.dueDate) return 0;
     if (!a.dueDate) return 1; if (!b.dueDate) return -1;
-    return new Date(a.dueDate)-new Date(b.dueDate);
+    return a.dueDate.localeCompare(b.dueDate); // ISO strings sort lexicographically
   });
   else if (sort==='alpha') tasks.sort((a,b)=>a.title.localeCompare(b.title));
   // 'none' = insertion order
@@ -739,7 +900,9 @@ function renderAllBoards() {
       <div class="ab-card-info">
         <input class="ab-card-name"
           value="${esc(g.name)}"
+          maxlength="80"
           title="Click to rename"
+          aria-label="Board name"
           onchange="renameGroup('${g.id}', this.value)"
           onkeydown="if(event.key==='Enter')this.blur()">
         <div class="ab-card-meta">
@@ -773,8 +936,15 @@ function addGroup() {
 
 function renameGroup(id, name) {
   const g = groupById(id); if (!g) return;
-  const trimmed = name.trim();
-  if (!trimmed) return;
+  let trimmed = (name||'').trim();
+  if (trimmed.length > 80) trimmed = trimmed.slice(0,80);
+  if (!trimmed) {
+    // Restore original value in the input + toast
+    const inp = document.querySelector(`#ab-card-${id} .ab-card-name`);
+    if (inp) inp.value = g.name;
+    showToast('&#x26A0; Board name can&#39;t be empty.');
+    return;
+  }
   g.name = trimmed;
   save();
   renderGroupTabs();
@@ -793,10 +963,23 @@ function renameGroup(id, name) {
 function deleteGroup(id) {
   const g = groupById(id);
   if (S.groups.length <= 1) return; // can't delete last board
-  confirmModal(`Delete board "${g?.name||'this board'}" and all its panels and tasks?`, () => {
+  if (!g) return;
+  confirmModal(`Delete board "${g.name}" and all its panels and tasks?`, () => {
+    // snapshot for undo
+    const removedTasks = S.tasks.filter(t => t.groupId === id);
+    const removedGroup = g;
+    const wasActive = (activeGroupId === id);
+    _pushUndo({
+      kind:'group',
+      group:JSON.parse(JSON.stringify(removedGroup)),
+      tasks:JSON.parse(JSON.stringify(removedTasks)),
+      wasActive,
+      label:`Board "${g.name}" deleted`,
+    });
     S.tasks  = S.tasks.filter(t => t.groupId !== id);
     S.groups = S.groups.filter(x => x.id !== id);
-    if (activeGroupId === id) activeGroupId = S.groups[0]?.id || null;
+    if (wasActive) activeGroupId = S.groups[0]?.id || null;
+    invalidatePanelCache();
     save();
     renderGroupTabs();
     renderAllBoards();
@@ -811,10 +994,10 @@ function openBoard(id) {
   activeGroupId = id;
   renderGroupTabs();
   applyBg();
-  // Activate Board tab
+  // Activate Board tab (use data-view, not [onclick*="board"] which also matches "allboards")
   document.querySelectorAll('.view-tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.view-content').forEach(c => c.classList.remove('active'));
-  document.querySelector('.view-tab-btn[onclick*="board"]').classList.add('active');
+  document.querySelector('.view-tab-btn[data-view="board"]')?.classList.add('active');
   document.getElementById('board-view').classList.add('active');
   renderBoard();
 }
@@ -824,16 +1007,20 @@ function openBoard(id) {
 // ══════════════════════════════════════
 function renderFilterBar(barId, filterSet) {
   const bar = document.getElementById(barId);
+  // Only show toggle when there are at least 2 boards (the chips do nothing useful otherwise)
+  const showToggle = S.groups.length > 1;
+  const allOn = filterSet === null;
   bar.innerHTML = `<span class="filter-bar-label">Show:</span>` +
     S.groups.map(g => {
       const checked = filterSet===null || filterSet.has(g.id);
       const dotColor = g.settings.bgColor || g.panels[0]?.color || 'var(--border2)';
       return `<label class="filter-chip${checked?' checked':''}" id="fchip-${barId}-${g.id}">
-        <input type="checkbox" ${checked?'checked':''} onchange="onFilterChange('${barId}','${g.id}',this.checked)">
+        <input type="checkbox" ${checked?'checked':''} onchange="onFilterChange('${barId}','${g.id}',this.checked)" aria-label="Toggle ${esc(g.name)}">
         <div class="filter-chip-dot" style="background:${dotColor}"></div>
         <span>${esc(g.name)}</span>
       </label>`;
-    }).join('');
+    }).join('') +
+    (showToggle ? `<button class="filter-bar-toggle" onclick="toggleFilterAll('${barId}')" aria-label="${allOn?'Clear all':'Select all'}">${allOn?'CLEAR ALL':'SELECT ALL'}</button>` : '');
 }
 function renderCalFilter() { renderFilterBar('cal-filter-bar', calFilterIds); }
 function renderArcFilter() { renderFilterBar('arc-filter-bar', arcFilterIds); }
@@ -846,6 +1033,15 @@ function onFilterChange(barId, groupId, checked) {
   if (fs.size === S.groups.length) fs = null;
   if (isCal) { calFilterIds = fs; renderCalFilter(); renderCalendar(); }
   else        { arcFilterIds = fs; renderArcFilter(); renderArchive(); }
+}
+
+function toggleFilterAll(barId) {
+  const isCal = barId === 'cal-filter-bar';
+  const fs = isCal ? calFilterIds : arcFilterIds;
+  // If currently all selected (fs === null), clear to empty set. Otherwise select all.
+  const newFs = (fs === null) ? new Set() : null;
+  if (isCal) { calFilterIds = newFs; renderCalFilter(); renderCalendar(); }
+  else       { arcFilterIds = newFs; renderArcFilter(); renderArchive(); }
 }
 
 // ══════════════════════════════════════
@@ -894,8 +1090,11 @@ function renderBoard() {
         <span class="panel-name-input" contenteditable="true"
           style="color:${nameColor};"
           draggable="false"
+          aria-label="Panel name"
+          spellcheck="false"
           onblur="renamePanelFromEl(this,'${p.id}')"
           onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
+          oninput="if(this.textContent.length>80){this.textContent=this.textContent.slice(0,80);}"
           onpaste="event.preventDefault();document.execCommand('insertText',false,event.clipboardData.getData('text/plain'));"
         >${esc(p.name)}</span>
         <div class="panel-actions">
@@ -930,13 +1129,11 @@ function cardHTML(t, g, freeSort=false) {
     const ds=dateBadgeStyle(t.dueDate), dl=formatDateLabel(t.dueDate);
     if (ds&&dl) badgeHTML=`<div class="date-badge" style="${ds}">${dl}</div>`;
   }
-  // Free-sort: allow drag-to-reorder within panel
-  const fsAttrs = freeSort
-    ? `ondragover="ev_taskReorderOver(event,'${t.id}')" ondrop="ev_taskReorderDrop(event,'${t.id}')" ondragleave="this.classList.remove('task-drop-before')"`
-    : '';
+  // Free-sort reordering is handled by the pointer drag system (see onPDUp / sort==='none' branch).
+  // The freeSort parameter is kept for potential future visual hint differentiation.
   return `
-  <div class="task-card" id="tc-${t.id}" style="border-color:${outline};background:${fill};"
-    onpointerdown="initTaskPointerDrag(event,'${t.id}')" ${fsAttrs}>
+  <div class="task-card" id="tc-${t.id}" data-tid="${t.id}" style="border-color:${outline};background:${fill};"
+    onpointerdown="initTaskPointerDrag(event,'${t.id}')">
     <div class="task-title" style="color:${tc}">${esc(t.title)}</div>
     ${badgeHTML}
     <div class="task-tags">
@@ -944,8 +1141,8 @@ function cardHTML(t, g, freeSort=false) {
       ${ty?`<span class="task-tag" style="background:rgba(0,0,0,0.35);color:${tc};">${esc(ty.name)}</span>`:''}
     </div>
     <div class="task-btns">
-      <button class="card-btn" onclick="openTaskModal('${t.id}',null)">Edit</button>
-      <button class="card-btn done" onclick="completeTask('${t.id}')">&#10003; Done</button>
+      <button class="card-btn" onclick="openTaskModal('${t.id}',null)" aria-label="Edit task">Edit</button>
+      <button class="card-btn done" onclick="completeTask('${t.id}')" aria-label="Mark task done">&#10003; Done</button>
     </div>
   </div>`;
 }
@@ -1004,13 +1201,16 @@ function assignCalRows(tasks, monthStart, monthEnd) {
 
 function renderCalendar() {
   document.getElementById('cal-month-title').textContent=`${MONTHS[calM]} ${calY}`;
-  const today=todayMidnight();
+  const now=new Date();
+  const todayIso=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
   const first=new Date(calY,calM,1).getDay();
   const last=new Date(calY,calM+1,0).getDate();
   const monthStart=`${calY}-${String(calM+1).padStart(2,'0')}-01`;
   const monthEnd=`${calY}-${String(calM+1).padStart(2,'0')}-${String(last).padStart(2,'0')}`;
   const visIds=new Set(calVisibleGroups().map(g=>g.id));
   const multiGroup=S.groups.length>1;
+  // Row cap — anything beyond rolls up into "+N more"
+  const MAX_VISIBLE_ROWS = window.innerWidth <= 640 ? 3 : 4;
 
   const active=S.tasks.filter(t=>{
     if (t.completed||!visIds.has(t.groupId)) return false;
@@ -1031,7 +1231,7 @@ function renderCalendar() {
 
   for (let d=1;d<=last;d++) {
     const iso=`${calY}-${String(calM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const isToday=new Date(iso).getTime()===today.getTime();
+    const isToday=iso===todayIso;
     const dayTasks=active.filter(t=>{
       if (t.startDate&&t.dueDate) return t.startDate<=iso&&iso<=t.dueDate;
       if (t.dueDate)   return t.dueDate===iso;
@@ -1043,56 +1243,22 @@ function renderCalendar() {
     const rowMap={};
     dayTasks.forEach(t=>{ rowMap[taskRow[t.id]||0]=t; });
     const maxRow=dayTasks.length?Math.max(...dayTasks.map(t=>taskRow[t.id]||0)):-1;
+    const visibleMaxRow = Math.min(maxRow, MAX_VISIBLE_ROWS - 1);
+    const hiddenTasks = dayTasks.filter(t => (taskRow[t.id]||0) > visibleMaxRow);
 
     h+=`<div class="cal-cell${isToday?' today':''}" data-date="${iso}"
       ondragover="ev_calOver(event)" ondrop="ev_calDrop(event,'${iso}')" ondragleave="ev_calLeave(event)">
       <div class="cal-day-num">${d}</div>`;
 
-    // Render slots 0..maxRow, inserting invisible gaps where no task occupies that row
-    for (let row=0; row<=maxRow; row++) {
+    // Render slots 0..visibleMaxRow, inserting invisible gaps where no task occupies that row
+    for (let row=0; row<=visibleMaxRow; row++) {
       const t=rowMap[row];
       if (!t) { h+=`<div class="cal-task-gap">&nbsp;</div>`; continue; }
-
-      const tg=groupById(t.groupId);
-      const s=tg?subj(t.subjectId,tg):null, ty=tg?ttype(t.typeId,tg):null;
-      const borderCol=s?s.color:'#444455', bgCol=ty?ty.color:'#2d2d2d';
-      const label=(multiGroup&&tg)?`${esc(t.title)} [${esc(tg.name)}]`:esc(t.title);
-      const isSpanning=t.startDate&&t.dueDate&&t.startDate!==t.dueDate;
-      const isFirst=!t.startDate||t.startDate===iso;
-      const isLast=!t.dueDate||t.dueDate===iso;
-      const dow=new Date(iso).getDay();
-      const rowStart=isFirst||dow===0;
-      const rowEnd=isLast||dow===6;
-
-      let chipStyle=`background:${bgCol};`;
-      let chipClass='cal-task';
-      let chipText='';
-      // Helper: title on line 1 (truncated), label on line 2
-      const twoLine = (title, label) =>
-        `<span class="ct-title">${title}</span><span class="ct-label">${label}</span>`;
-
-      if (isSpanning) {
-        const extL=rowStart?6:7, extR=rowEnd?6:7;
-        chipStyle+=`width:calc(100% + ${extL+extR}px);margin-left:-${extL}px;margin-right:-${extR}px;`;
-        const rl=rowStart?'3px':'0', rr=rowEnd?'3px':'0';
-        chipStyle+=`border-radius:${rl} ${rr} ${rr} ${rl};`;
-        chipStyle+=rowStart?`border-left:3px solid ${borderCol};`:'border-left:none;';
-        chipStyle+=isLast?`border-right:3px solid ${borderCol};`:'border-right:none;';
-        if (isFirst && isLast)      chipText = `<span class="ct-title">${esc(t.title)}</span>`;
-        else if (isFirst)           chipText = twoLine(esc(t.title), '— Start');
-        else if (isLast)          { chipText = twoLine(esc(t.title), '— End'); chipClass+=' cal-task-cont'; }
-        else                        chipClass+=' cal-task-cont';
-      } else {
-        chipStyle+=`width:calc(100% + 12px);margin-left:-6px;margin-right:-6px;`;
-        chipStyle+=`border-left:3px solid ${borderCol};border-right:3px solid ${borderCol};border-radius:3px;`;
-        if (t.startDate && !t.dueDate)      chipText = twoLine(esc(t.title), '— Start');
-        else if (t.dueDate && !t.startDate) chipText = twoLine(esc(t.title), '— End');
-        else                                chipText = `<span class="ct-title">${esc(t.title)}</span>`;
-      }
-      h+=`<div class="${chipClass}" style="${chipStyle}" data-tid="${t.id}"
-        draggable="true" title="${label}"
-        ondragstart="ev_taskDragStart(event,'${t.id}')"
-        ondragend="ev_taskDragEnd(event)">${chipText}</div>`;
+      h += renderCalChip(t, iso, monthStart, monthEnd, multiGroup);
+    }
+    // "+N more" — clickable popover trigger
+    if (hiddenTasks.length) {
+      h += `<div class="cal-more" onclick="showDayPopover(event,'${iso}')">+${hiddenTasks.length} more</div>`;
     }
     h+=`</div>`;
   }
@@ -1103,9 +1269,130 @@ function renderCalendar() {
   document.getElementById('cal-grid').innerHTML=h;
 }
 
+// Render one calendar chip — extracted so the popover can reuse it.
+function renderCalChip(t, iso, monthStart, monthEnd, multiGroup, plain=false) {
+  const tg=groupById(t.groupId);
+  const s=tg?subj(t.subjectId,tg):null, ty=tg?ttype(t.typeId,tg):null;
+  const borderCol=s?s.color:'#444455', bgCol=ty?ty.color:'#2d2d2d';
+  const label=(multiGroup&&tg)?`${esc(t.title)} [${esc(tg.name)}]`:esc(t.title);
+  const isSpanning=t.startDate&&t.dueDate&&t.startDate!==t.dueDate;
+  const isFirst=!t.startDate||t.startDate===iso;
+  const isLast=!t.dueDate||t.dueDate===iso;
+  const dow=parseISOLocal(iso).getDay();
+  const rowStart=isFirst||dow===0;
+  const rowEnd=isLast||dow===6;
+
+  // Cross-month continuation indicators — show ◂ if this is the first visible day
+  // in the month and the task started earlier; show ▸ on the last visible day
+  // when the task continues past the visible month.
+  const continuesBefore = !!(t.startDate && t.startDate < monthStart && iso === monthStart);
+  const continuesAfter  = !!(t.dueDate   && t.dueDate   > monthEnd   && iso === monthEnd);
+  const contPrev = continuesBefore ? `<span class="ct-cont-prev" title="Continues from previous month">&#9666;</span>` : '';
+  const contNext = continuesAfter  ? `<span class="ct-cont-next" title="Continues into next month">&#9656;</span>`   : '';
+
+  let chipStyle=`background:${bgCol};`;
+  let chipClass='cal-task';
+  let chipText='';
+  const twoLine = (title, label, endAlign=false) =>
+    `<span class="ct-title">${contPrev}${title}${contNext}</span><span class="ct-label${endAlign?' ct-label-end':''}">${label}</span>`;
+
+  if (plain) {
+    // Popover variant: no negative margins, no border-radius hacks — just a clean chip
+    chipStyle += `border-left:3px solid ${borderCol};border-radius:3px;`;
+    chipText = `<span class="ct-title">${contPrev}${esc(t.title)}${contNext}</span>`;
+    if (t.startDate && t.dueDate && t.startDate !== t.dueDate) {
+      chipText += `<span class="ct-label">${esc(t.startDate)} &rarr; ${esc(t.dueDate)}</span>`;
+    } else if (t.dueDate) {
+      chipText += `<span class="ct-label">Due ${esc(t.dueDate)}</span>`;
+    } else if (t.startDate) {
+      chipText += `<span class="ct-label">Starts ${esc(t.startDate)}</span>`;
+    }
+  } else if (isSpanning) {
+    const extL=rowStart?6:7, extR=rowEnd?6:7;
+    chipStyle+=`width:calc(100% + ${extL+extR}px);margin-left:-${extL}px;margin-right:-${extR}px;`;
+    const rl=rowStart?'3px':'0', rr=rowEnd?'3px':'0';
+    chipStyle+=`border-radius:${rl} ${rr} ${rr} ${rl};`;
+    chipStyle+=rowStart?`border-left:3px solid ${borderCol};`:'border-left:none;';
+    chipStyle+=isLast?`border-right:3px solid ${borderCol};`:'border-right:none;';
+    if (isFirst && isLast)      chipText = `<span class="ct-title">${contPrev}${esc(t.title)}${contNext}</span>`;
+    else if (isFirst)           chipText = twoLine(esc(t.title), '— Start');
+    else if (isLast)          { chipText = twoLine(esc(t.title), 'End —', true); chipClass+=' cal-task-cont'; }
+    else                      { chipText = ''; chipClass+=' cal-task-cont'; }  // middle days: coloured bar only
+  } else {
+    chipStyle+=`width:calc(100% + 12px);margin-left:-6px;margin-right:-6px;`;
+    chipStyle+=`border-left:3px solid ${borderCol};border-right:3px solid ${borderCol};border-radius:3px;`;
+    if (t.startDate && !t.dueDate)              chipText = twoLine(esc(t.title), '— Start');
+    else if (t.dueDate && !t.startDate)         chipText = twoLine(esc(t.title), 'End —', true);
+    else if (t.startDate && t.dueDate)          chipText = `<span class="ct-title">${contPrev}${esc(t.title)}${contNext}</span>`; // same day — title only
+    else                                        chipText = `<span class="ct-title">${contPrev}${esc(t.title)}${contNext}</span>`;
+  }
+  return `<div class="${chipClass}" style="${chipStyle}" data-tid="${t.id}"
+    draggable="true" title="${label}"
+    onclick="event.stopPropagation();openTaskModal('${t.id}',null)"
+    ondragstart="ev_taskDragStart(event,'${t.id}')"
+    ondragend="ev_taskDragEnd(event)">${chipText}</div>`;
+}
+
+// Show a popover listing all tasks for a given day (clicked from "+N more")
+function showDayPopover(e, iso) {
+  e.stopPropagation();
+  closeDayPopover();
+  const cell = e.currentTarget.closest('.cal-cell');
+  if (!cell) return;
+  const rect = cell.getBoundingClientRect();
+  const monthStart = `${calY}-${String(calM+1).padStart(2,'0')}-01`;
+  const last = new Date(calY,calM+1,0).getDate();
+  const monthEnd = `${calY}-${String(calM+1).padStart(2,'0')}-${String(last).padStart(2,'0')}`;
+  const visIds=new Set(calVisibleGroups().map(g=>g.id));
+  const multiGroup=S.groups.length>1;
+  const dayTasks = S.tasks.filter(t => {
+    if (t.completed || !visIds.has(t.groupId)) return false;
+    if (t.startDate&&t.dueDate) return t.startDate<=iso && iso<=t.dueDate;
+    if (t.dueDate)   return t.dueDate===iso;
+    if (t.startDate) return t.startDate===iso;
+    return false;
+  });
+  const pop = document.createElement('div');
+  pop.className = 'cal-day-popover';
+  pop.onclick = ev => ev.stopPropagation();
+  const dateLabel = formatArchiveDate(iso);
+  pop.innerHTML = `<div class="cal-day-popover-title">${esc(dateLabel)} — ${dayTasks.length} task${dayTasks.length!==1?'s':''}</div>` +
+    dayTasks.map(t => renderCalChip(t, iso, monthStart, monthEnd, multiGroup, true)).join('');
+  document.body.appendChild(pop);
+  // Position: prefer below the cell, flip up if off-screen
+  const pw = 280;
+  let left = Math.min(Math.max(rect.left, 8), window.innerWidth - pw - 8);
+  let top = rect.bottom + 4;
+  const popH = pop.getBoundingClientRect().height;
+  if (top + popH > window.innerHeight - 8) top = Math.max(8, rect.top - popH - 4);
+  pop.style.left = left + 'px';
+  pop.style.top = top + 'px';
+  // Close on outside click / Escape
+  setTimeout(() => {
+    document.addEventListener('pointerdown', _dayPopoverOutside);
+    document.addEventListener('keydown', _dayPopoverEsc);
+  }, 10);
+}
+function closeDayPopover() {
+  document.querySelector('.cal-day-popover')?.remove();
+  document.removeEventListener('pointerdown', _dayPopoverOutside);
+  document.removeEventListener('keydown', _dayPopoverEsc);
+}
+function _dayPopoverOutside(e) {
+  if (!e.target.closest('.cal-day-popover')) closeDayPopover();
+}
+function _dayPopoverEsc(e) {
+  if (e.key === 'Escape') closeDayPopover();
+}
+
 function calNav(d) {
   calM+=d;
   if (calM>11){calM=0;calY++;} else if (calM<0){calM=11;calY--;}
+  renderCalendar();
+}
+function calToday() {
+  const n = new Date();
+  calY = n.getFullYear(); calM = n.getMonth();
   renderCalendar();
 }
 
@@ -1116,7 +1403,7 @@ function renderArchive() {
   const visGroups = arcVisibleGroups();
   const visIds = new Set(visGroups.map(g=>g.id));
   const done = S.tasks.filter(t=>t.completed&&visIds.has(t.groupId));
-  done.sort((a,b)=>new Date(b.completedAt||0)-new Date(a.completedAt||0));
+  done.sort((a,b)=>(b.completedAt||'').localeCompare(a.completedAt||''));
   const el = document.getElementById('archive-list');
   if (!done.length) { el.innerHTML=`<div class="archive-empty">Nothing archived yet.</div>`; return; }
 
@@ -1132,7 +1419,7 @@ function renderArchive() {
       html += `<div class="archive-item">
         <div class="archive-dot" style="background:${dot}"></div>
         <div class="archive-title">${esc(t.title)}</div>
-        <div class="archive-meta">${p?.name||'—'}</div>
+        <div class="archive-meta">${p?esc(p.name):'—'}</div>
         ${ty?`<div class="archive-meta" style="color:${ty.color};">${esc(ty.name)}</div>`:''}
         <div class="archive-meta">${t.dueDate?formatArchiveDate(t.dueDate):'—'}</div>
         <button class="sm-btn" onclick="restoreTask('${t.id}')">Restore</button>
@@ -1211,7 +1498,7 @@ function initTaskPointerDrag(e,taskId){
   document.body.appendChild(pd.ghost);
   pd.placeholder=document.createElement('div');
   pd.placeholder.className='task-placeholder';
-  pd.placeholder.style.cssText=`width:${rect.width}px;height:${rect.height}px;`;
+  pd.placeholder.style.cssText=`height:${rect.height}px;`;
   pdFlip(card.parentNode,()=>{card.parentNode.insertBefore(pd.placeholder,card);card.style.display='none';},'.task-card');
   pd.active=true;
   document.addEventListener('pointermove',onPDMove,{passive:false});
@@ -1306,6 +1593,8 @@ function onPDMove(e){
         if(pd.placeholder.nextSibling!==target||pd.placeholder.parentNode!==card.parentNode)
           pdFlip(card.parentNode,()=>card.parentNode.insertBefore(pd.placeholder,target||null),'.task-card');
       } else if(!body.contains(pd.placeholder)){
+        const hint=body.querySelector('.empty-panel-hint');
+        if(hint) hint.style.display='none';
         pdFlip(body,()=>body.appendChild(pd.placeholder),'.task-card');
       }
     }
@@ -1365,6 +1654,7 @@ function onPDUp(){
           return el.id?.replace('panel-','');
         }).filter(Boolean);
         g.panels.sort((a,b)=>order.indexOf(a.id)-order.indexOf(b.id));
+        invalidatePanelCache();
         save();
       }
     }
@@ -1443,9 +1733,21 @@ function ev_calDrop(e,iso) {
 // ══════════════════════════════════════
 function addPanel() {
   const g=activeGroup(); if (!g) return;
-  g.panels.push({id:uid(),name:'New Panel',color:'#111111'});
+  const newPanel = {id:uid(),name:'New Panel',color:'#111111',sort:'date'};
+  g.panels.push(newPanel);
+  invalidatePanelCache();
   save(); renderBoard();
   setTimeout(()=>{
+    // Auto-scroll the new panel into view (especially important in vertical/Trello mode)
+    const newEl = document.getElementById(`panel-${newPanel.id}`);
+    const container = document.getElementById('panel-container');
+    if (newEl && container) {
+      if (container.classList.contains('board-vertical')) {
+        container.scrollTo({left: container.scrollWidth, behavior: 'smooth'});
+      } else {
+        newEl.scrollIntoView({block:'nearest', behavior:'smooth'});
+      }
+    }
     const inputs=document.querySelectorAll('.panel-name-input');
     if (!inputs.length) return;
     const el=inputs[inputs.length-1];
@@ -1455,23 +1757,46 @@ function addPanel() {
     const sel=window.getSelection();
     sel.removeAllRanges();
     sel.addRange(range);
-  },50);
+  },60);
 }
 function renamePanel(pid,name) {
-  const g=activeGroup(); if (!g) return;
-  const p=g.panels.find(p=>p.id===pid); if(p){p.name=name;save();}
+  const c = panelByIdCached(pid);
+  if (!c) return;
+  c.panel.name = name;
+  save();
 }
 function renamePanelFromEl(el, pid) {
-  const name = el.textContent.trim();
-  if (!name) el.textContent = 'New Panel';
-  renamePanel(pid, el.textContent.trim());
+  let name = (el.textContent||'').trim();
+  if (name.length > 80) name = name.slice(0,80);
+  const c = panelByIdCached(pid);
+  if (!c) return;
+  if (!name) {
+    // Restore previous name (don't silently rename to "New Panel")
+    el.textContent = c.panel.name || 'New Panel';
+    showToast('&#x26A0; Panel name can&#39;t be empty.');
+    return;
+  }
+  el.textContent = name; // reflect any trimming back into the DOM
+  renamePanel(pid, name);
 }
 function deletePanel(pid) {
   const g=activeGroup(); if (!g) return;
   const p=g.panels.find(p=>p.id===pid);
-  confirmModal(`Delete panel "${p?.name||'this panel'}" and all its tasks?`, () => {
-    g.panels=g.panels.filter(p=>p.id!==pid);
+  if (!p) return;
+  confirmModal(`Delete panel "${p.name}" and all its tasks?`, () => {
+    const idx = g.panels.indexOf(p);
+    const removedTasks = S.tasks.filter(t => t.panelId === pid);
+    _pushUndo({
+      kind:'panel',
+      groupId:g.id,
+      index:idx,
+      panel:JSON.parse(JSON.stringify(p)),
+      tasks:JSON.parse(JSON.stringify(removedTasks)),
+      label:`Panel "${p.name}" deleted`,
+    });
+    g.panels=g.panels.filter(x=>x.id!==pid);
     S.tasks=S.tasks.filter(t=>t.panelId!==pid);
+    invalidatePanelCache();
     save(); renderBoard(); renderCalendar();
   });
 }
@@ -1540,8 +1865,8 @@ function openTaskModal(tid, defaultPanelId) {
   const m=mkModal(`
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-title">${isEdit?'Edit Task':'New Task'}</div>
-    <div class="form-group"><label class="form-label">Title</label>
-      <input id="ti-title" class="form-input" value="${esc(t?.title||'')}" placeholder="What needs to be done?">
+    <div class="form-group"><label class="form-label" for="ti-title">Title</label>
+      <input id="ti-title" class="form-input" value="${esc(t?.title||'')}" placeholder="What needs to be done?" maxlength="200" required>
     </div>
     <div class="form-group"><label class="form-label">Panel</label>
       <select id="ti-panel" class="form-input">${pOpts}</select>
@@ -1597,8 +1922,11 @@ function completeTask(id) {
   save(); renderBoard(); renderCalendar(); renderArchive();
 }
 function deleteTaskModal(id) {
-  confirmModal('Delete this task permanently?', () => {
-    S.tasks=S.tasks.filter(t=>t.id!==id);
+  const t=task(id); if(!t) return;
+  confirmModal(`Delete task "${t.title}" permanently?`, () => {
+    const idx = S.tasks.indexOf(t);
+    _pushUndo({kind:'task', index:idx, task:JSON.parse(JSON.stringify(t)), label:`Task "${t.title}" deleted`});
+    S.tasks=S.tasks.filter(x=>x.id!==id);
     save(); closeModals(); renderBoard(); renderCalendar(); renderArchive();
   });
 }
@@ -1608,9 +1936,11 @@ function restoreTask(id) {
   save(); renderArchive(); renderBoard(); renderCalendar();
 }
 function deleteTaskPerm(id) {
-  const t=task(id);
-  confirmModal(`Delete "${t?.title||'this task'}" permanently?`, () => {
-    S.tasks=S.tasks.filter(t=>t.id!==id);
+  const t=task(id); if(!t) return;
+  confirmModal(`Delete "${t.title}" permanently?`, () => {
+    const idx = S.tasks.indexOf(t);
+    _pushUndo({kind:'task', index:idx, task:JSON.parse(JSON.stringify(t)), label:`Task "${t.title}" deleted`});
+    S.tasks=S.tasks.filter(x=>x.id!==id);
     save(); renderArchive();
   });
 }
@@ -1623,20 +1953,9 @@ function openSettings() {
   const g=activeGroup(); if (!g) return;
   const {panelLayout:lay, panelColorStyle:cs, bgImage, bgBlur, bgColor}=g.settings;
 
-  function sRow(id,name,color) {
-    return `<tr id="srow-${id}">
-      <td><input class="stbl-input" value="${esc(name)}" id="sn-${id}" placeholder="Subject name"></td>
-      <td><div class="stbl-color-btn" id="scb-${id}" style="background:${color}" onclick="openInlineColor('sc-${id}','scb-${id}')"></div><input type="hidden" id="sc-${id}" value="${color}"></td>
-      <td><button class="stbl-del" onclick="document.getElementById('srow-${id}').remove()">&#x2715;</button></td>
-    </tr>`;
-  }
-  function tRow(id,name,color) {
-    return `<tr id="trow-${id}">
-      <td><input class="stbl-input" value="${esc(name)}" id="tn-${id}" placeholder="Type name"></td>
-      <td><div class="stbl-color-btn" id="tcb-${id}" style="background:${color}" onclick="openInlineColor('tc-${id}','tcb-${id}')"></div><input type="hidden" id="tc-${id}" value="${color}"></td>
-      <td><button class="stbl-del" onclick="document.getElementById('trow-${id}').remove()">&#x2715;</button></td>
-    </tr>`;
-  }
+  // Top-level helper at end of file — kind is 's' (subject) or 't' (type)
+  const sRow = (id,name,color) => makeSettingsRow('s', id, name, color);
+  const tRow = (id,name,color) => makeSettingsRow('t', id, name, color);
 
   const m=mkModal(`
   <div class="modal settings-modal" onclick="event.stopPropagation()">
@@ -1646,17 +1965,17 @@ function openSettings() {
       <div class="form-group">
         <label class="form-label">Panel Direction</label>
         <div class="opt-group" id="layout-opts">
-          <button class="opt-btn${lay==='horizontal'?' active':''}" onclick="setOpt(this,'layout-opts')">&#9646; Horizontal rows</button>
-          <button class="opt-btn${lay==='vertical'?' active':''}" onclick="setOpt(this,'layout-opts')">&#9646;&#9646; Vertical columns</button>
+          <button class="opt-btn${lay==='horizontal'?' active':''}" data-value="horizontal" onclick="setOpt(this,'layout-opts')">&#9646; Horizontal rows</button>
+          <button class="opt-btn${lay==='vertical'?' active':''}" data-value="vertical" onclick="setOpt(this,'layout-opts')">&#9646;&#9646; Vertical columns</button>
         </div>
         <div class="dim-note" style="margin-top:6px;">Horizontal = rows of cards. Vertical = Trello-style columns.</div>
       </div>
       <div class="form-group">
         <label class="form-label">Panel Colour Style</label>
         <div class="opt-group" id="cs-opts">
-          <button class="opt-btn${cs==='stripe'?' active':''}" onclick="setOpt(this,'cs-opts')">&#9474; Stripe</button>
-          <button class="opt-btn${cs==='tint'?' active':''}"   onclick="setOpt(this,'cs-opts')">&#9617; Tint</button>
-          <button class="opt-btn${cs==='full'?' active':''}"   onclick="setOpt(this,'cs-opts')">&#9608; Full Header</button>
+          <button class="opt-btn${cs==='stripe'?' active':''}" data-value="stripe" onclick="setOpt(this,'cs-opts')">&#9474; Stripe</button>
+          <button class="opt-btn${cs==='tint'?' active':''}"   data-value="tint"   onclick="setOpt(this,'cs-opts')">&#9617; Tint</button>
+          <button class="opt-btn${cs==='full'?' active':''}"   data-value="full"   onclick="setOpt(this,'cs-opts')">&#9608; Full Header</button>
         </div>
       </div>
     </div>
@@ -1710,26 +2029,80 @@ function setOpt(btn, groupId) {
   document.querySelectorAll(`#${groupId} .opt-btn`).forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
 }
+// Shared row template — `kind` is 's' (subject) or 't' (type).
+// Used by both initial render (via sRow/tRow inside openSettings) and the
+// `addSubjRow`/`addTypeRow` event handlers below. Eliminates 4 near-duplicate templates.
+function makeSettingsRow(kind, id, name, color) {
+  const placeholder = kind === 's' ? 'Subject name' : 'Type name';
+  const removeLabel = kind === 's' ? 'Remove subject' : 'Remove task type';
+  return `<tr id="${kind}row-${id}">
+    <td><input class="stbl-input" value="${esc(name||'')}" id="${kind}n-${id}" placeholder="${placeholder}" maxlength="40"></td>
+    <td><div class="stbl-color-btn" id="${kind}cb-${id}" style="background:${color}" onclick="openInlineColor('${kind}c-${id}','${kind}cb-${id}')" aria-label="Pick colour"></div><input type="hidden" id="${kind}c-${id}" value="${color}"></td>
+    <td><button class="stbl-del" onclick="document.getElementById('${kind}row-${id}').remove()" aria-label="${removeLabel}">&#x2715;</button></td>
+  </tr>`;
+}
 function addSubjRow() {
   const id=uid();
-  document.getElementById('subj-tbody').insertAdjacentHTML('beforeend',
-    `<tr id="srow-${id}"><td><input class="stbl-input" id="sn-${id}" placeholder="Subject name"></td>
-     <td><div class="stbl-color-btn" id="scb-${id}" style="background:#a8d8ea" onclick="openInlineColor('sc-${id}','scb-${id}')"></div><input type="hidden" id="sc-${id}" value="#a8d8ea"></td>
-     <td><button class="stbl-del" onclick="document.getElementById('srow-${id}').remove()">&#x2715;</button></td></tr>`);
+  document.getElementById('subj-tbody').insertAdjacentHTML('beforeend', makeSettingsRow('s', id, '', '#a8d8ea'));
   document.getElementById(`sn-${id}`)?.focus();
 }
 function addTypeRow() {
   const id=uid();
-  document.getElementById('type-tbody').insertAdjacentHTML('beforeend',
-    `<tr id="trow-${id}"><td><input class="stbl-input" id="tn-${id}" placeholder="Type name"></td>
-     <td><div class="stbl-color-btn" id="tcb-${id}" style="background:#b5ead7" onclick="openInlineColor('tc-${id}','tcb-${id}')"></div><input type="hidden" id="tc-${id}" value="#b5ead7"></td>
-     <td><button class="stbl-del" onclick="document.getElementById('trow-${id}').remove()">&#x2715;</button></td></tr>`);
+  document.getElementById('type-tbody').insertAdjacentHTML('beforeend', makeSettingsRow('t', id, '', '#b5ead7'));
   document.getElementById(`tn-${id}`)?.focus();
 }
 function handleBgFile(input) {
   const file=input.files[0]; if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    showToast('&#x2715; Not an image file.');
+    input.value=''; return;
+  }
+  // If file is small enough, use as-is. Otherwise downsample via canvas.
+  if (file.size <= MAX_BG_IMAGE_BYTES) {
+    _readBgAsDataURL(file);
+  } else {
+    showToast('Compressing large image…');
+    _compressBgFile(file);
+  }
+}
+function _readBgAsDataURL(file) {
   const reader=new FileReader();
   reader.onload=e=>{ _pendingBgData=e.target.result; previewBg(); };
+  reader.onerror=()=>showToast('&#x2715; Could not read image.');
+  reader.readAsDataURL(file);
+}
+function _compressBgFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      // Downsize to max 1920px on the long edge, JPEG 0.82
+      const MAX = 1920;
+      let w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        if (w >= h) { h = Math.round(h * MAX/w); w = MAX; }
+        else        { w = Math.round(w * MAX/h); h = MAX; }
+      }
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      let data = c.toDataURL('image/jpeg', 0.82);
+      // Re-compress harder if still too big
+      if (data.length > MAX_BG_DATA_URL_LEN) {
+        data = c.toDataURL('image/jpeg', 0.6);
+      }
+      if (data.length > MAX_BG_DATA_URL_LEN) {
+        showToast('&#x2715; Image too large even after compression.');
+        return;
+      }
+      _pendingBgData = data;
+      previewBg();
+      showToast('&#10003; Image ready.');
+    };
+    img.onerror = () => showToast('&#x2715; Could not decode image.');
+    img.src = e.target.result;
+  };
+  reader.onerror = () => showToast('&#x2715; Could not read image.');
   reader.readAsDataURL(file);
 }
 function clearBgImage() {
@@ -1762,8 +2135,8 @@ function saveSettings() {
   });
   const layActive=document.querySelector('#layout-opts .opt-btn.active');
   const csActive =document.querySelector('#cs-opts .opt-btn.active');
-  if(layActive) g.settings.panelLayout=layActive.textContent.includes('Vertical')?'vertical':'horizontal';
-  if(csActive)  g.settings.panelColorStyle=csActive.textContent.includes('Tint')?'tint':csActive.textContent.includes('Full')?'full':'stripe';
+  if(layActive && layActive.dataset.value) g.settings.panelLayout = layActive.dataset.value;
+  if(csActive  && csActive.dataset.value)  g.settings.panelColorStyle = csActive.dataset.value;
   if(_pendingBgData!==null) g.settings.bgImage=_pendingBgData;
   g.settings.bgBlur=parseInt(document.getElementById('bg-blur')?.value)||0;
   const bgColorVal=document.getElementById('bg-color')?.value||'';
@@ -1775,11 +2148,12 @@ function saveSettings() {
 // ══════════════════════════════════════
 //  VIEW SWITCHING
 // ══════════════════════════════════════
-function switchView(view,btn) {
+function switchView(view, btn) {
   document.querySelectorAll('.view-tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.view-content').forEach(c=>c.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById(`${view}-view`).classList.add('active');
+  const activeBtn = btn || document.querySelector(`.view-tab-btn[data-view="${view}"]`);
+  activeBtn?.classList.add('active');
+  document.getElementById(`${view}-view`)?.classList.add('active');
   if (view==='board')      renderBoard();
   if (view==='calendar')   { renderCalFilter(); renderCalendar(); }
   if (view==='archive')    { renderArcFilter(); renderArchive(); }
@@ -1791,27 +2165,72 @@ function switchView(view,btn) {
 // ══════════════════════════════════════
 function mkModal(inner) {
   const d=document.createElement('div');
-  d.className='modal-bd'; d.innerHTML=inner;
+  d.className='modal-bd';
+  d.setAttribute('role','dialog');
+  d.setAttribute('aria-modal','true');
+  d.innerHTML=inner;
   d.onclick=e=>{ if(e.target===d) closeModals(); };
+  // Activate focus trap once modal is rendered
+  setTimeout(()=>trapFocus(d.querySelector('.modal')), 0);
   return d;
 }
-function closeModals() { document.getElementById('modals').innerHTML=''; }
+function closeModals() {
+  const wasSettings = !!document.querySelector('#modals .settings-modal');
+  // If user cancels settings (with pending bg image, colour change, or blur slider tweaks)
+  // restore the saved background.
+  if (wasSettings || _pendingBgData !== null) {
+    _pendingBgData = null;
+    applyBg();
+  }
+  document.getElementById('modals').innerHTML='';
+}
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModals(); });
 
-function confirmModal(msg, onConfirm) {
+function confirmModal(msg, onConfirm, opts) {
   closeModals();
-  const m=mkModal(`
-    <div class="modal" onclick="event.stopPropagation()" style="max-width:340px;text-align:center;">
-      <div style="font-size:22px;margin-bottom:10px;">&#x26A0;</div>
-      <div class="modal-title" style="font-size:14px;margin-bottom:6px;">${msg}</div>
-      <div class="modal-actions" style="justify-content:center;margin-top:16px;">
-        <button class="btn btn-ghost" id="confirm-cancel-btn">Cancel</button>
-        <button class="btn" style="background:rgba(200,60,60,0.2);color:#e05555;border:1px solid #5a1a1a;" id="confirm-ok-btn">Delete</button>
-      </div>
-    </div>`);
-  document.getElementById('modals').appendChild(m);
-  document.getElementById('confirm-cancel-btn').addEventListener('click', closeModals);
-  document.getElementById('confirm-ok-btn').addEventListener('click', ()=>{ closeModals(); onConfirm(); });
+  opts = opts || {};
+  const okLabel = opts.okLabel || 'Delete';
+  const destructive = opts.destructive !== false; // default true
+  const okStyle = destructive
+    ? 'background:rgba(200,60,60,0.2);color:#e05555;border:1px solid #5a1a1a;'
+    : 'background:var(--accent);color:#fff;';
+  // Build modal via DOM (not innerHTML) so msg can never inject script.
+  const bd = document.createElement('div');
+  bd.className = 'modal-bd';
+  bd.setAttribute('role','dialog');
+  bd.setAttribute('aria-modal','true');
+  const md = document.createElement('div');
+  md.className = 'modal';
+  md.style.cssText = 'max-width:340px;text-align:center;';
+  md.onclick = e=>e.stopPropagation();
+  const icon = document.createElement('div');
+  icon.style.cssText = 'font-size:22px;margin-bottom:10px;';
+  icon.innerHTML = '&#x26A0;';
+  const title = document.createElement('div');
+  title.className = 'modal-title';
+  title.style.cssText = 'font-size:14px;margin-bottom:6px;';
+  title.textContent = msg;            // <-- safe: textContent
+  const actions = document.createElement('div');
+  actions.className = 'modal-actions';
+  actions.style.cssText = 'justify-content:center;margin-top:16px;';
+  const cancel = document.createElement('button');
+  cancel.className = 'btn btn-ghost';
+  cancel.textContent = 'Cancel';
+  cancel.id = 'confirm-cancel-btn';
+  const ok = document.createElement('button');
+  ok.className = 'btn';
+  ok.setAttribute('style', okStyle);
+  ok.textContent = okLabel;
+  ok.id = 'confirm-ok-btn';
+  actions.appendChild(cancel); actions.appendChild(ok);
+  md.appendChild(icon); md.appendChild(title); md.appendChild(actions);
+  bd.appendChild(md);
+  bd.onclick = e=>{ if(e.target===bd) closeModals(); };
+  document.getElementById('modals').appendChild(bd);
+  cancel.addEventListener('click', closeModals);
+  ok.addEventListener('click', ()=>{ closeModals(); onConfirm(); });
+  trapFocus(md);
+  setTimeout(()=>ok.focus(), 30);
 }
 
 // ══════════════════════════════════════
@@ -1887,10 +2306,17 @@ renderGroupTabs();
 renderBoard();
 applyBg();
 
+_lastTodayISO = todayISO();
 setInterval(()=>{
+  // Skip re-render while user is dragging — otherwise the in-flight drag is destroyed.
+  if (pd.active || dragId) return;
+  const now = todayISO();
+  if (now === _lastTodayISO) return; // date hasn't ticked over, "today" highlight still accurate
+  _lastTodayISO = now;
   const active=document.querySelector('.view-content.active');
   if(active?.id==='board-view')    renderBoard();
   if(active?.id==='calendar-view') renderCalendar();
+  if(active?.id==='archive-view')  renderArchive();
 },60000);
 
 // ══════════════════════════════════════
@@ -1901,9 +2327,9 @@ const td = { id:null, ghost:null, ox:0, oy:0, moved:false };
 document.addEventListener('touchstart',e=>{
   const card=e.target.closest('.task-card,.cal-task');
   if(!card||e.target.closest('button')) return;
-  const taskId=card.classList.contains('cal-task')
-    ?card.getAttribute('ondragstart')?.match(/'([^']+)'/)?.[1]
-    :card.id.replace('tc-','');
+  const taskId = card.classList.contains('cal-task')
+    ? card.getAttribute('data-tid')
+    : card.id.replace('tc-','');
   if(!taskId) return;
   const touch=e.touches[0], rect=card.getBoundingClientRect();
   td.id=taskId; td.ox=touch.clientX-rect.left; td.oy=touch.clientY-rect.top; td.moved=false;
