@@ -20,14 +20,33 @@
   --accent: #5b8fff;
   --radius: 8px;
   --radius-lg: 12px;
-  /* chrome heights — kept here so calc()s stay in sync */
+  /* chrome heights */
   --header-h: 52px;
   --tabs-bar-h: 36px;
-  --chrome-h: 88px;            /* header + tabs */
-  --board-vert-reserve: 140px; /* vertical-layout panel max-height padding */
+  --chrome-h: 88px;
+  --board-vert-reserve: 140px;
   --mobile-header-h: 48px;
   --mobile-chrome-h: 84px;
   --mobile-vert-reserve: 120px;
+  /* chrome colours — overridden by applyBg() when a board colour is active */
+  --chrome-bg:       rgba(12,12,15,0.92);
+  --chrome-bg2:      rgba(12,12,15,0.88);
+  --chrome-text:     #e4e4ee;
+  --chrome-text-muted: #60607a;
+  --chrome-text-dim: #9090aa;
+  --chrome-border:   #2a2a34;
+  --chrome-surface:  #141418;
+  --chrome-surface2: #1c1c22;
+  /* panel border — overridden when borderColor is set */
+  --panel-border:    var(--border);
+  /* view-area text/surface — adapt to bgColor luminance (set by applyBg) */
+  --view-text:        var(--text);
+  --view-text-muted:  var(--text-muted);
+  --view-text-dim:    var(--text-dim);
+  --view-surface:     var(--surface);
+  --view-surface-alt: var(--bg);
+  --view-hdr-bg:      var(--surface2);
+  --view-today-bg:    var(--surface3);
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Syne', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
@@ -37,35 +56,36 @@ body { font-family: 'Syne', sans-serif; background: var(--bg); color: var(--text
 header {
   display: flex; align-items: center;
   padding: 0 16px; height: var(--header-h);
-  background: rgba(12,12,15,0.92); backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border);
+  background: var(--chrome-bg); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--chrome-border);
   position: sticky; top: 0; z-index: 200; gap: 12px;
+  transition: background 0.3s, border-color 0.3s;
 }
-.logo { font-size: 14px; font-weight: 800; letter-spacing: 3px; color: var(--text); font-family: 'IBM Plex Mono', monospace; white-space: nowrap; flex-shrink: 0; }
+.logo { font-size: 14px; font-weight: 800; letter-spacing: 3px; color: var(--chrome-text); font-family: 'IBM Plex Mono', monospace; white-space: nowrap; flex-shrink: 0; }
 .view-tabs { display: flex; gap: 2px; flex-shrink: 0; }
-.view-tab-btn { padding: 5px 13px; border-radius: 6px; border: none; background: transparent; color: var(--text-muted); font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
-.view-tab-btn.active { background: var(--surface2); color: var(--text); }
-.view-tab-btn:hover:not(.active) { color: var(--text-dim); }
-.nav-sep { width: 1px; height: 22px; background: var(--border); flex-shrink: 0; }
+.view-tab-btn { padding: 5px 13px; border-radius: 6px; border: none; background: transparent; color: var(--chrome-text-muted); font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+.view-tab-btn.active { background: var(--chrome-surface2); color: var(--chrome-text); }
+.view-tab-btn:hover:not(.active) { color: var(--chrome-text-dim); }
+.nav-sep { width: 1px; height: 22px; background: var(--chrome-border); flex-shrink: 0; }
 .group-tabs-wrap { flex: 1; display: flex; align-items: center; gap: 4px; overflow-x: auto; min-width: 0; }
 .group-tabs-wrap::-webkit-scrollbar { height: 0; }
-.group-tab-btn { padding: 4px 12px; border-radius: 6px; border: 1px solid transparent; background: transparent; color: var(--text-muted); font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
-.group-tab-btn.active { background: var(--surface2); color: var(--text); border-color: var(--border); }
-.group-tab-btn:hover:not(.active) { color: var(--text-dim); }
-.hdr-btn { width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; transition: all 0.15s; flex-shrink: 0; }
-.hdr-btn:hover { color: var(--text); border-color: var(--border2); }
+.group-tab-btn { padding: 4px 12px; border-radius: 6px; border: 1px solid transparent; background: transparent; color: var(--chrome-text-muted); font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
+.group-tab-btn.active { background: var(--chrome-surface2); color: var(--chrome-text); border-color: var(--chrome-border); }
+.group-tab-btn:hover:not(.active) { color: var(--chrome-text-dim); }
+.hdr-btn { width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--chrome-border); background: var(--chrome-surface); color: var(--chrome-text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; transition: all 0.15s; flex-shrink: 0; }
+.hdr-btn:hover { color: var(--chrome-text); border-color: var(--chrome-surface2); }
 
 /* ══ SAVE/LOAD BUTTONS ══ */
 .hdr-io-btn {
   height: 32px; padding: 0 11px; border-radius: 6px;
-  border: 1px solid var(--border); background: var(--surface);
-  color: var(--text-muted); cursor: pointer;
+  border: 1px solid var(--chrome-border); background: var(--chrome-surface);
+  color: var(--chrome-text-muted); cursor: pointer;
   display: flex; align-items: center; gap: 5px;
   font-family: 'IBM Plex Mono', monospace; font-size: 10px;
   font-weight: 600; letter-spacing: 0.3px;
   transition: all 0.15s; flex-shrink: 0; white-space: nowrap;
 }
-.hdr-io-btn:hover { color: var(--text); border-color: var(--border2); }
+.hdr-io-btn:hover { color: var(--chrome-text); border-color: var(--chrome-surface2); }
 .hdr-io-btn.save:hover { color: #50c878; border-color: rgba(80,200,120,0.4); }
 .hdr-io-btn.load:hover { color: var(--accent); border-color: rgba(91,143,255,0.4); }
 .hdr-io-btn svg { flex-shrink: 0; }
@@ -84,14 +104,14 @@ header {
 #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
 
 /* ══ VIEWS ══ */
-.view-content { display: none; }
+.view-content { display: none; color: var(--view-text); }
 .view-content.active { display: block; }
 
-.board-tabs-bar { display: flex; align-items: center; padding: 0 12px; height: var(--tabs-bar-h); background: rgba(12,12,15,0.88); border-bottom: 1px solid var(--border); position: sticky; top: var(--header-h); z-index: 190; backdrop-filter: blur(12px); }
+.board-tabs-bar { display: flex; align-items: center; padding: 0 12px; height: var(--tabs-bar-h); background: var(--chrome-bg2); border-bottom: 1px solid var(--chrome-border); position: sticky; top: var(--header-h); z-index: 190; backdrop-filter: blur(12px); transition: background 0.3s, border-color 0.3s; }
 
 /* Board view height accounts for header + board-tabs-bar */
 #board-view.view-content.active { display: flex; flex-direction: column; height: calc(100vh - var(--chrome-h)); overflow: hidden; }
-#board-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 10px 20px 0; overflow: hidden; }
+#board-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 20px 20px 0; overflow: hidden; }
 
 /* ══ BOARD ══ */
 .add-panel-btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: var(--radius); border: none; background: var(--accent); color: #fff; font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; margin-bottom: 12px; transition: all 0.15s; flex-shrink: 0; }
@@ -99,16 +119,16 @@ header {
 
 /* Horizontal layout: panels stack vertically, scroll within board-wrap */
 #panel-container.board-horizontal { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-bottom: 20px; }
-#panel-container.board-horizontal .panel { background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); margin-bottom: 14px; overflow: hidden; min-width: 260px; transition: opacity 0.2s, border-color 0.2s; }
+#panel-container.board-horizontal .panel { background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--panel-border); margin-bottom: 14px; overflow: hidden; min-width: 260px; transition: opacity 0.2s, border-color 0.2s; }
 #panel-container.board-horizontal .task-card { width: auto; max-width: 280px; }
 #panel-container.board-horizontal .task-title { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
-#panel-container.board-horizontal .panel-body { padding: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(186px, 1fr)); gap: 10px; min-height: 76px; transition: background 0.15s; }
+#panel-container.board-horizontal .panel-body { padding: 12px; padding-top: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(186px, 1fr)); gap: 10px; min-height: 76px; transition: background 0.15s; }
 
 /* Vertical layout: columns fill height, scrollbar at bottom of viewport */
 #panel-container.board-vertical { flex: 1; min-height: 0; display: flex; flex-direction: row; align-items: flex-start; gap: 14px; overflow-x: auto; overflow-y: hidden; }
-#panel-container.board-vertical .panel { flex-shrink: 0; background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); overflow: hidden; display: flex; flex-direction: column; max-height: calc(100% - 20px); transition: opacity 0.2s, border-color 0.2s; }
-#panel-container.board-vertical .panel-body { padding: 10px 10px 0; display: flex; flex-direction: column; flex-wrap: nowrap; gap: 8px; overflow-y: auto; overflow-x: hidden; flex: 1; min-height: 0; transition: background 0.15s; }
-#panel-container.board-vertical .panel-footer { height: 10px; flex-shrink: 0; background: var(--surface); }
+#panel-container.board-vertical .panel { flex-shrink: 0; background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--panel-border); overflow: hidden; display: flex; flex-direction: column; max-height: calc(100% - 20px); transition: opacity 0.2s, border-color 0.2s; }
+#panel-container.board-vertical .panel-body { padding: 10px 10px 0; padding-top: 14px; display: flex; flex-direction: column; flex-wrap: nowrap; gap: 8px; overflow-y: auto; overflow-x: hidden; flex: 1; min-height: 0; transition: background 0.15s; }
+#panel-container.board-vertical .panel-footer { height: 10px; flex-shrink: 0; background: transparent; }
 #panel-container.board-vertical .panel-header { padding: 8px 10px; gap: 5px 6px; }
 #panel-container.board-vertical .panel-btn { padding: 3px 7px; font-size: 9px; }
 #panel-container.board-vertical .panel-actions { gap: 3px; }
@@ -119,7 +139,7 @@ header {
 
 /* Panel header */
 .panel.panel-drop-target { border-color: var(--accent) !important; border-style: dashed !important; background: rgba(91,143,255,0.04) !important; }
-.panel-header { display: flex; align-items: center; flex-wrap: wrap; padding: 10px 14px; gap: 6px 10px; border-bottom: 1px solid var(--border); flex-shrink: 0; transition: background 0.2s; cursor: grab; }
+.panel-header { display: flex; align-items: center; flex-wrap: wrap; padding: 10px 14px; gap: 6px 10px; border-bottom: 1px solid var(--panel-border); flex-shrink: 0; transition: background 0.2s; cursor: grab; }
 .panel-header:active { cursor: grabbing; }
 .panel-header.cs-stripe { border-left: 4px solid #111; }
 .panel-header.cs-tint   { border-left: 4px solid transparent; }
@@ -153,33 +173,33 @@ header {
 .empty-panel-hint { color: var(--text-muted); font-size: 11px; font-family: 'IBM Plex Mono', monospace; align-self: center; padding: 8px 0; }
 
 /* ══ FILTER BAR ══ */
-.filter-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px 20px; border-bottom: 1px solid var(--border); background: var(--surface); }
-.filter-bar-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-muted); letter-spacing: 0.8px; text-transform: uppercase; flex-shrink: 0; }
-.filter-chip { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface2); cursor: pointer; transition: all 0.15s; user-select: none; }
+.filter-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px 20px; border-bottom: 1px solid var(--chrome-border); background: var(--chrome-bg2); }
+.filter-bar-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--chrome-text-muted); letter-spacing: 0.8px; text-transform: uppercase; flex-shrink: 0; }
+.filter-chip { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--chrome-border); background: var(--chrome-surface); cursor: pointer; transition: all 0.15s; user-select: none; }
 .filter-chip input[type="checkbox"] { display: none; }
 .filter-chip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: var(--border2); }
-.filter-chip span { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-muted); }
-.filter-chip.checked { border-color: var(--border2); background: var(--surface3); }
-.filter-chip.checked span { color: var(--text); }
-.filter-bar-toggle { margin-left: auto; padding: 4px 10px; border-radius: 5px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 9px; cursor: pointer; letter-spacing: 0.5px; transition: all 0.15s; }
-.filter-bar-toggle:hover { color: var(--text); border-color: var(--border2); }
+.filter-chip span { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--chrome-text-muted); }
+.filter-chip.checked { border-color: var(--chrome-border); background: var(--chrome-surface2); }
+.filter-chip.checked span { color: var(--chrome-text); }
+.filter-bar-toggle { margin-left: auto; padding: 4px 10px; border-radius: 5px; border: 1px solid var(--chrome-border); background: transparent; color: var(--chrome-text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 9px; cursor: pointer; letter-spacing: 0.5px; transition: all 0.15s; }
+.filter-bar-toggle:hover { color: var(--chrome-text); border-color: var(--chrome-border); }
 
 /* ══ CALENDAR ══ */
 .cal-body { padding: 20px; }
 .cal-header { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
-.cal-nav-btn { width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
-.cal-nav-btn:hover { border-color: var(--border2); }
-.cal-today-btn { padding: 0 12px; height: 30px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-dim); cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.5px; transition: all 0.15s; }
-.cal-today-btn:hover { color: var(--text); border-color: var(--border2); }
+.cal-nav-btn { width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--panel-border); background: var(--view-surface); color: var(--view-text); cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.cal-nav-btn:hover { border-color: var(--view-text-dim); }
+.cal-today-btn { padding: 0 12px; height: 30px; border-radius: 6px; border: 1px solid var(--panel-border); background: var(--view-surface); color: var(--view-text-dim); cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.5px; transition: all 0.15s; }
+.cal-today-btn:hover { color: var(--view-text); border-color: var(--view-text-dim); }
 #cal-month-title { font-size: 17px; font-weight: 700; }
-.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
-.cal-day-hdr { background: var(--surface2); padding: 7px; text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-muted); letter-spacing: 1px; }
-.cal-cell { background: var(--surface); min-height: 96px; padding: 6px; transition: background 0.15s; min-width: 0; overflow: hidden; }
-.cal-cell.other { background: var(--bg); }
-.cal-cell.today { background: rgba(91,143,255,0.05); }
-.cal-cell.dov { background: rgba(91,143,255,0.1); }
-.cal-day-num { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
-.cal-cell.today .cal-day-num { color: var(--accent); font-weight: 700; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--panel-border); border: 1px solid var(--panel-border); border-radius: var(--radius-lg); overflow: hidden; }
+.cal-day-hdr { background: var(--view-hdr-bg); padding: 7px; text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--view-text-muted); letter-spacing: 1px; transition: background 0.3s, color 0.3s; }
+.cal-cell { background: var(--view-surface); min-height: 96px; padding: 6px; transition: background 0.3s; min-width: 0; overflow: hidden; }
+.cal-cell.other { background: var(--view-surface-alt); }
+.cal-cell.today { outline: 2px solid var(--view-text-muted); outline-offset: -2px; }
+.cal-cell.dov { background: rgba(91,143,255,0.12); }
+.cal-day-num { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--view-text-muted); margin-bottom: 4px; }
+.cal-cell.today .cal-day-num { color: var(--view-text); font-weight: 800; }
 .cal-task { font-size: 10px; line-height: 1.2; height: 30px; padding: 2px 5px; border-radius: 3px; margin-bottom: 3px; cursor: grab; border-left: 2px solid #555; background: #2d2d2d; color: var(--text); overflow: hidden; font-weight: 600; font-family: 'IBM Plex Mono', monospace; transition: opacity 0.12s; position: relative; z-index: 1; box-sizing: border-box; }
 .cal-task:hover { opacity: 0.8; }
 .cal-task-cont { opacity: 0.75; }
@@ -195,22 +215,22 @@ header {
 .cal-more:hover { background: rgba(91,143,255,0.25); }
 .cal-day-popover { position: fixed; z-index: 8000; background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; padding: 8px; box-shadow: 0 12px 40px rgba(0,0,0,0.6); max-width: 280px; }
 .cal-day-popover .cal-task { width: auto !important; margin-left: 0 !important; margin-right: 0 !important; border-radius: 3px !important; border-left: 3px solid var(--border2) !important; border-right: none !important; }
-.cal-day-popover-title { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 0.5px; }
+.cal-day-popover-title { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--view-text-muted); margin-bottom: 6px; letter-spacing: 0.5px; }
 /* Continuation indicators for tasks spanning beyond visible month */
 .cal-task .ct-cont-prev { font-weight: 800; opacity: 0.6; margin-right: 2px; }
 .cal-task .ct-cont-next { font-weight: 800; opacity: 0.6; margin-left: 2px; }
 
 /* ══ ARCHIVE ══ */
 .archive-body { padding: 20px; }
-.archive-empty { color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 13px; padding: 40px 0; text-align: center; }
-.archive-group-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin: 18px 0 8px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+.archive-empty { color: var(--view-text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 13px; padding: 40px 0; text-align: center; }
+.archive-group-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--view-text-muted); letter-spacing: 1px; text-transform: uppercase; margin: 18px 0 8px; padding-bottom: 5px; border-bottom: 1px solid var(--panel-border); }
 .archive-group-label:first-child { margin-top: 0; }
-.archive-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; }
+.archive-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; background: var(--view-surface); border: 1px solid var(--panel-border); border-radius: var(--radius); margin-bottom: 8px; transition: background 0.3s, border-color 0.3s; }
 .archive-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.archive-title { flex: 1; font-size: 13px; color: var(--text-muted); text-decoration: line-through; min-width: 0; }
-.archive-meta { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-muted); white-space: nowrap; }
-.sm-btn { padding: 4px 10px; border-radius: 5px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 10px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
-.sm-btn:hover { color: var(--text); border-color: var(--border2); }
+.archive-title { flex: 1; font-size: 13px; color: var(--view-text-muted); text-decoration: line-through; min-width: 0; }
+.archive-meta { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--view-text-muted); white-space: nowrap; }
+.sm-btn { padding: 4px 10px; border-radius: 5px; border: 1px solid var(--panel-border); background: transparent; color: var(--view-text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 10px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+.sm-btn:hover { color: var(--view-text); border-color: var(--view-text-dim); }
 
 /* ══ ALL BOARDS ══ */
 .ab-body { padding: 24px; }
@@ -219,44 +239,46 @@ header {
   margin-bottom: 24px;
 }
 .ab-header h2 { font-size: 18px; font-weight: 800; }
-.ab-new-btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 8px 18px; border-radius: var(--radius);
-  border: none; background: var(--accent);
-  color: #fff; font-family: 'Syne', sans-serif;
-  font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
-  cursor: pointer; transition: all 0.15s;
+.ab-empty { color: var(--view-text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 40px 0; text-align: center; }
+.ab-add-slot {
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; width: 100%; padding: 16px 18px;
+  border: 2px dashed var(--panel-border); border-radius: var(--radius-lg);
+  background: transparent; cursor: pointer;
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.5px;
+  color: var(--view-text-muted); margin-bottom: 10px;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  user-select: none;
 }
-.ab-new-btn:hover { opacity: 0.85; }
-.ab-empty { color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 40px 0; text-align: center; }
+.ab-add-slot:hover { border-color: var(--accent); color: var(--accent); background: rgba(91,143,255,0.04); }
 .ab-card {
   display: flex; align-items: center; gap: 16px;
-  padding: 16px 18px; background: var(--surface);
-  border: 1px solid var(--border); border-radius: var(--radius-lg);
-  margin-bottom: 10px; transition: border-color 0.15s;
+  padding: 16px 18px; background: var(--view-surface);
+  border: 1px solid var(--panel-border); border-radius: var(--radius-lg);
+  margin-bottom: 10px; transition: border-color 0.15s, background 0.3s;
 }
-.ab-card:hover { border-color: var(--border2); }
+.ab-card:hover { border-color: var(--view-text-dim); }
 .ab-card-stripe {
   width: 4px; height: 42px; border-radius: 2px;
   flex-shrink: 0; background: var(--border2);
 }
 .ab-card-info { flex: 1; min-width: 0; }
 .ab-card-name {
-  background: none; border: none; color: var(--text);
+  background: none; border: none; color: var(--view-text);
   font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;
   outline: none; width: 100%; padding: 2px 0;
   border-bottom: 1px solid transparent; transition: border-color 0.15s;
 }
 .ab-card-name:focus { border-bottom-color: var(--accent); }
-.ab-card-meta { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+.ab-card-meta { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--view-text-muted); margin-top: 4px; }
 .ab-card-actions { display: flex; gap: 6px; flex-shrink: 0; }
 .ab-open-btn {
   padding: 5px 13px; border-radius: 6px;
-  border: 1px solid var(--border); background: var(--surface2);
-  color: var(--text-dim); font-family: 'IBM Plex Mono', monospace;
+  border: 1px solid var(--panel-border); background: var(--view-surface);
+  color: var(--view-text-dim); font-family: 'IBM Plex Mono', monospace;
   font-size: 11px; cursor: pointer; transition: all 0.15s;
 }
-.ab-open-btn:hover { color: var(--text); border-color: var(--border2); }
+.ab-open-btn:hover { color: var(--view-text); border-color: var(--view-text-dim); }
 .ab-del-btn {
   padding: 5px 13px; border-radius: 6px;
   border: 1px solid #3a1515; background: rgba(200,60,60,0.08);
@@ -264,6 +286,31 @@ header {
   font-size: 11px; cursor: pointer; transition: all 0.15s;
 }
 .ab-del-btn:hover { background: rgba(200,60,60,0.18); color: #e05555; border-color: #5a1a1a; }
+
+/* Inline "add panel" slot — vertical layout only */
+.add-panel-slot {
+  flex-shrink: 0; min-width: 270px; max-width: 270px;
+  align-self: flex-start;
+  height: 88px;
+  margin-bottom: 20px;
+  border: 2px dashed var(--panel-border); border-radius: var(--radius-lg);
+  background: transparent; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; color: var(--view-text-muted);
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.5px;
+  user-select: none;
+}
+/* Horizontal variant: full width, shorter, sits below the last panel */
+.add-panel-slot.horiz {
+  min-width: 0; max-width: none; width: 100%;
+  height: 54px; align-self: auto;
+  flex-direction: row; gap: 8px;
+  margin-bottom: 20px;
+}
+.add-panel-slot:hover { border-color: var(--accent); color: var(--accent); background: rgba(91,143,255,0.04); }
+.add-panel-slot-icon { font-size: 28px; line-height: 1; opacity: 0.5; transition: opacity 0.15s; }
+.add-panel-slot:hover .add-panel-slot-icon { opacity: 1; }
 
 /* ══ POINTER DRAG ══ */
 .pd-ghost { position:fixed; z-index:9999; pointer-events:none; opacity:0.93; transform:rotate(2deg) scale(1.04); box-shadow:0 20px 60px rgba(0,0,0,0.8); border-radius:var(--radius); will-change:left,top; }
@@ -316,6 +363,32 @@ input[type="file"].form-input::-webkit-file-upload-button { background: var(--su
 /* Inline color swatch button (subjects / task types) */
 .stbl-color-btn { width: 34px; height: 28px; border: 1px solid var(--border); border-radius: 5px; cursor: pointer; display: block; transition: transform 0.1s, border-color 0.1s; }
 .stbl-color-btn:hover { transform: scale(1.08); border-color: var(--border2); }
+/* Compact colour button in settings (Appearance, Background, Defaults sections) */
+.settings-color-btn { width: 44px; height: 30px; border: 1px solid var(--border2); border-radius: 6px; cursor: pointer; display: inline-block; flex-shrink: 0; transition: transform 0.1s, border-color 0.1s; }
+.settings-color-btn:hover { transform: scale(1.06); border-color: var(--accent); }
+.settings-color-btn.empty { background: repeating-linear-gradient(135deg,transparent 0 42%,rgba(200,60,60,0.55) 42% 58%,transparent 58% 100%) var(--surface3) !important; }
+
+/* Theme cards (Appearance section) */
+.theme-section-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 1.2px; color: var(--text-dim); margin: 14px 0 8px; text-transform: uppercase; }
+.theme-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 6px; }
+.theme-card { position: relative; width: 76px; cursor: pointer; user-select: none; transition: transform 0.1s; }
+.theme-card:hover { transform: translateY(-2px); }
+.theme-card-preview { position: relative; width: 100%; height: 56px; border-radius: 6px; overflow: hidden; border: 2px solid transparent; transition: border-color 0.15s; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+.theme-card:hover .theme-card-preview { border-color: var(--border2); }
+.theme-card.selected .theme-card-preview { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(91,143,255,0.3); }
+.theme-card-chrome { height: 28%; }
+.theme-card-body { position: absolute; top: 28%; left: 0; right: 0; bottom: 0; padding: 4px; }
+.theme-card-panel { width: 100%; height: 100%; border-radius: 3px; padding: 4px; display: flex; align-items: flex-end; box-sizing: border-box; }
+.theme-card-task { width: 75%; height: 38%; border-radius: 2px; }
+.theme-card-name { text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-dim); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.theme-card.selected .theme-card-name { color: var(--accent); font-weight: 700; }
+.theme-card-del { position: absolute; top: -6px; right: -6px; width: 18px; height: 18px; border: 1px solid var(--border); background: var(--surface3); color: var(--text); border-radius: 50%; font-size: 9px; cursor: pointer; display: none; align-items: center; justify-content: center; padding: 0; z-index: 2; }
+.theme-card-del:hover { background: var(--danger); border-color: var(--danger); color: #fff; }
+.theme-card:hover .theme-card-del { display: flex; }
+.theme-card-add .theme-card-preview { background: var(--surface3); border: 2px dashed var(--border2); display: flex; align-items: center; justify-content: center; box-shadow: none; }
+.theme-card-add:hover .theme-card-preview { border-color: var(--accent); }
+.theme-card-add-icon { font-size: 22px; color: var(--text-dim); line-height: 1; }
+.theme-card-add:hover .theme-card-add-icon { color: var(--accent); }
 .inline-color-picker { position: fixed; z-index: 9000; background: var(--surface2); border: 1px solid var(--border2); border-radius: 10px; padding: 10px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); width: 218px; }
 .inline-color-picker .pastel-grid { margin-bottom: 8px; }
 
@@ -399,7 +472,6 @@ input[type="number"].form-input::-webkit-inner-spin-button { -webkit-appearance:
   /* All Boards */
   .ab-body { padding: 14px; }
   .ab-header { flex-wrap: wrap; gap: 10px; }
-  .ab-new-btn { width: 100%; justify-content: center; }
   .ab-card { flex-wrap: wrap; gap: 10px; padding: 14px; }
   .ab-card-info { min-width: 0; width: 100%; }
   .ab-card-actions { width: 100%; display: flex; gap: 8px; }
@@ -462,7 +534,7 @@ input[type="number"].form-input::-webkit-inner-spin-button { -webkit-appearance:
 <!-- BOARD -->
 <div id="board-view" class="view-content active" role="region" aria-label="Board view">
   <div id="board-wrap">
-    <button class="add-panel-btn" onclick="addPanel()" aria-label="Add new panel">+ NEW PANEL</button>
+    <button class="add-panel-btn" onclick="addPanel()" aria-label="Add new panel" style="display:none">+ NEW PANEL</button>
     <div id="panel-container" class="board-horizontal"></div>
   </div>
 </div>
@@ -496,7 +568,6 @@ input[type="number"].form-input::-webkit-inner-spin-button { -webkit-appearance:
   <div class="ab-body">
     <div class="ab-header">
       <h2>All Boards</h2>
-      <button class="ab-new-btn" onclick="addGroup()" aria-label="Create new board">+ New Board</button>
     </div>
     <div id="ab-list"></div>
   </div>
@@ -509,8 +580,62 @@ input[type="number"].form-input::-webkit-inner-spin-button { -webkit-appearance:
 //  STATE
 // ══════════════════════════════════════
 const DEFAULT_SETTINGS = () => ({
-  bgImage:'', bgBlur:0, bgColor:'', panelLayout:'horizontal', panelColorStyle:'stripe'
+  bgImage:'', bgBlur:0, bgColor:'',
+  chromeColor:'',
+  borderColor:'',
+  defaultPanelColor:'',
+  defaultTaskColor:'',
+  panelLayout:'horizontal', panelColorStyle:'stripe'
 });
+
+// 20 built-in themes (10 dark + 10 light). Each theme sets all four appearance colours:
+// panel (panel base), task (default task fill), bg (board background), chrome (header/tabs bar).
+const BUILT_IN_THEMES = [
+  // ─── DARK — monochromatic ───
+  {id:'d-midnight', name:'Midnight', isDark:true,  panel:'#14182a', task:'#1f2438', bg:'#0a0e1c', chrome:'#060911', border:'#2a3050'},
+  {id:'d-charcoal', name:'Charcoal', isDark:true,  panel:'#1f1f1f', task:'#2a2a2a', bg:'#0f0f0f', chrome:'#050505', border:'#383838'},
+  {id:'d-forest',   name:'Forest',   isDark:true,  panel:'#142a17', task:'#1f3823', bg:'#0a140c', chrome:'#061008', border:'#28422c'},
+  {id:'d-crimson',  name:'Crimson',  isDark:true,  panel:'#2a1217', task:'#3a1a20', bg:'#1a0a0e', chrome:'#100507', border:'#422030'},
+  {id:'d-ocean',    name:'Ocean',    isDark:true,  panel:'#122a2e', task:'#1a383d', bg:'#0a1a1c', chrome:'#05101a', border:'#224852'},
+  {id:'d-cosmos',   name:'Cosmos',   isDark:true,  panel:'#22142e', task:'#2e1c3d', bg:'#14091c', chrome:'#0a0511', border:'#3a2848'},
+  {id:'d-volcano',  name:'Volcano',  isDark:true,  panel:'#22180e', task:'#2e2014', bg:'#14100a', chrome:'#0a0704', border:'#382c1c'},
+  {id:'d-slate',    name:'Slate',    isDark:true,  panel:'#222830', task:'#2e353e', bg:'#161a1e', chrome:'#0a0d10', border:'#36404a'},
+  {id:'d-wine',     name:'Wine',     isDark:true,  panel:'#2e1422', task:'#3d1c2e', bg:'#1c0a14', chrome:'#110507', border:'#482038'},
+  {id:'d-carbon',   name:'Carbon',   isDark:true,  panel:'#1c1c1c', task:'#262626', bg:'#0a0a0a', chrome:'#000000', border:'#2c2c2c'},
+  // ─── DARK — multi-hue / contrasting ───
+  {id:'d-aurora',    name:'Aurora',    isDark:true,  panel:'#1a2e2e', task:'#2e1a2e', bg:'#0a0a1c', chrome:'#050514', border:'#2e4a4a'},
+  {id:'d-synthwave', name:'Synthwave', isDark:true,  panel:'#2e0a2a', task:'#0e1a3d', bg:'#0a0014', chrome:'#000010', border:'#4a1a44'},
+  {id:'d-cyberpunk', name:'Cyberpunk', isDark:true,  panel:'#0e2a14', task:'#2a0e1a', bg:'#020210', chrome:'#000005', border:'#1f4a28'},
+  {id:'d-twilight',  name:'Twilight',  isDark:true,  panel:'#142a17', task:'#1a3823', bg:'#0e0a1c', chrome:'#080510', border:'#2a4030'},
+  {id:'d-royal',     name:'Royal',     isDark:true,  panel:'#2a200e', task:'#3a2e18', bg:'#1a0a2e', chrome:'#0e0518', border:'#4a3820'},
+  {id:'d-botanical', name:'Botanical', isDark:true,  panel:'#2a1a0e', task:'#3a2818', bg:'#0e1a0a', chrome:'#080f06', border:'#4a301c'},
+  {id:'d-mocha',     name:'Mocha',     isDark:true,  panel:'#2a1f1a', task:'#3a2a20', bg:'#1a0e0a', chrome:'#0e0805', border:'#4a3328'},
+  {id:'d-galaxy',    name:'Galaxy',    isDark:true,  panel:'#2a142e', task:'#1c1c3d', bg:'#0a0a1c', chrome:'#050511', border:'#3a204a'},
+  {id:'d-sakura',    name:'Sakura',    isDark:true,  panel:'#2e1a24', task:'#1a2a1a', bg:'#0a0a14', chrome:'#050510', border:'#4a2a3a'},
+  {id:'d-emerald',   name:'Emerald',   isDark:true,  panel:'#2a2014', task:'#3a2c1a', bg:'#0a1c14', chrome:'#06120c', border:'#3a3018'},
+  // ─── LIGHT — monochromatic ───
+  {id:'l-paper',    name:'Paper',    isDark:false, panel:'#ffffff', task:'#f7f7f7', bg:'#ececec', chrome:'#dcdcdc', border:'#cccccc'},
+  {id:'l-mint',     name:'Mint',     isDark:false, panel:'#f5fcf6', task:'#ffffff', bg:'#dfeee5', chrome:'#c8e0d1', border:'#aacab6'},
+  {id:'l-lavender', name:'Lavender', isDark:false, panel:'#f6f3fc', task:'#ffffff', bg:'#e2dceb', chrome:'#cec5dd', border:'#b0a8cc'},
+  {id:'l-peach',    name:'Peach',    isDark:false, panel:'#fcf4ec', task:'#ffffff', bg:'#eedacd', chrome:'#e1c1aa', border:'#c8a080'},
+  {id:'l-sky',      name:'Sky',      isDark:false, panel:'#ebf4fb', task:'#ffffff', bg:'#cee0ed', chrome:'#b3cee2', border:'#88b0cc'},
+  {id:'l-linen',    name:'Linen',    isDark:false, panel:'#faf5ed', task:'#ffffff', bg:'#ebe0cb', chrome:'#d8c5a3', border:'#bca070'},
+  {id:'l-rose',     name:'Rose',     isDark:false, panel:'#fcf2f5', task:'#ffffff', bg:'#edd6dd', chrome:'#dcb6c3', border:'#c090a8'},
+  {id:'l-sage',     name:'Sage',     isDark:false, panel:'#f4f7f2', task:'#ffffff', bg:'#d8e0d2', chrome:'#bccbb3', border:'#96b08c'},
+  {id:'l-sunlight', name:'Sunlight', isDark:false, panel:'#fcfae8', task:'#ffffff', bg:'#eee5b8', chrome:'#dcd095', border:'#c0a840'},
+  {id:'l-pearl',    name:'Pearl',    isDark:false, panel:'#ffffff', task:'#fbfbfb', bg:'#f3f3f3', chrome:'#e8e8e8', border:'#d0d0d0'},
+  // ─── LIGHT — multi-hue / contrasting ───
+  {id:'l-sage-plum',     name:'Sage & Plum',  isDark:false, panel:'#e0d4e0', task:'#ffffff', bg:'#e8e5d8', chrome:'#d4cad4', border:'#b8a8b8'},
+  {id:'l-sunrise',       name:'Sunrise',      isDark:false, panel:'#fce8d5', task:'#fff8ec', bg:'#f5e0c8', chrome:'#eed3b5', border:'#d8b890'},
+  {id:'l-medi',          name:'Mediterranean',isDark:false, panel:'#f5d8c5', task:'#fffaf0', bg:'#dceaf0', chrome:'#c0d8e0', border:'#d8a890'},
+  {id:'l-macaron',       name:'Macaron',      isDark:false, panel:'#d8f0d8', task:'#ffe0eb', bg:'#f0dcf0', chrome:'#e8d0e8', border:'#a8c8a8'},
+  {id:'l-field',         name:'Field',        isDark:false, panel:'#d5dae8', task:'#ffffff', bg:'#f5edd5', chrome:'#ebdcb5', border:'#a8b0c8'},
+  {id:'l-watercolor',    name:'Watercolor',   isDark:false, panel:'#d8e8f0', task:'#ffffff', bg:'#f0dce0', chrome:'#e2c8d0', border:'#a8c0d4'},
+  {id:'l-vintage',       name:'Vintage',      isDark:false, panel:'#e8d8b8', task:'#faf5e8', bg:'#f0e8d5', chrome:'#d8c8a0', border:'#b8a880'},
+  {id:'l-tropical',      name:'Tropical',     isDark:false, panel:'#ffc8b8', task:'#ffffff', bg:'#d8f0e0', chrome:'#fcdac8', border:'#e89080'},
+  {id:'l-garden',        name:'Garden',       isDark:false, panel:'#f0e8d5', task:'#ffffff', bg:'#e0e8d8', chrome:'#d4d8b8', border:'#a8a880'},
+  {id:'l-bloom',         name:'Bloom',        isDark:false, panel:'#e0e8d8', task:'#ffffff', bg:'#f0d8d8', chrome:'#dbc6c1', border:'#a8c0a8'},
+];
 
 let S = { groups:[], tasks:[] };
 let activeGroupId = null;
@@ -620,6 +745,7 @@ function load() {
         throw new Error('Saved state has wrong shape.');
       }
       S = parsed;
+      if (!Array.isArray(S.customThemes)) S.customThemes = [];
       S.groups.forEach(g => {
         g.settings = Object.assign(DEFAULT_SETTINGS(), g.settings||{});
         g.subjects = g.subjects || [];
@@ -632,7 +758,6 @@ function load() {
     const old = localStorage.getItem('tb2_state');
     if (old) { migrateOld(JSON.parse(old)); return; }
   } catch(e) {
-    // Back up corrupt blob so user data isn't silently lost
     try {
       const raw = localStorage.getItem('tb3_state');
       if (raw) {
@@ -641,8 +766,9 @@ function load() {
         setTimeout(() => showToast(`&#x26A0; Saved data was corrupt — backed up to "${key}". Starting fresh.`), 100);
       }
     } catch(_) {}
-    S = { groups:[], tasks:[] };
+    S = { groups:[], tasks:[], customThemes:[] };
   }
+  if (!Array.isArray(S.customThemes)) S.customThemes = [];
   if (!S.groups.length) createGroup('My Board');
 }
 
@@ -719,6 +845,7 @@ function handleImportFile(input) {
         g.subjects = Array.isArray(g.subjects) ? g.subjects : [];
         g.taskTypes= Array.isArray(g.taskTypes)? g.taskTypes: [];
       });
+      if (!Array.isArray(parsed.customThemes)) parsed.customThemes = [];
       confirmModal(`Load "${file.name}"? This will replace all current boards and tasks.`,()=>{
         S=parsed; activeGroupId=S.groups[0]?.id||null;
         calFilterIds=null; arcFilterIds=null;
@@ -884,15 +1011,16 @@ function switchGroup(id) {
 // ══════════════════════════════════════
 function renderAllBoards() {
   const el = document.getElementById('ab-list');
+  const addSlot = `<button class="ab-add-slot" onclick="addGroup()" aria-label="Create new board"><span style="font-size:18px;line-height:1;">+</span><span>NEW BOARD</span></button>`;
   if (!S.groups.length) {
-    el.innerHTML = `<div class="ab-empty">No boards yet — create one above.</div>`;
+    el.innerHTML = addSlot;
     return;
   }
   el.innerHTML = S.groups.map(g => {
     const panelCount  = g.panels.length;
     const activeCount = S.tasks.filter(t => t.groupId===g.id && !t.completed).length;
     const doneCount   = S.tasks.filter(t => t.groupId===g.id && t.completed).length;
-    const stripeColor = g.settings.bgColor || g.panels[0]?.color || 'var(--border2)';
+    const stripeColor = g.settings.bgColor || g.settings.defaultPanelColor || g.panels[0]?.color || 'var(--border2)';
     const canDelete   = S.groups.length > 1;
     return `
     <div class="ab-card" id="ab-card-${g.id}">
@@ -918,7 +1046,7 @@ function renderAllBoards() {
           : ''}
       </div>
     </div>`;
-  }).join('');
+  }).join('') + addSlot;
 }
 
 function addGroup() {
@@ -1013,7 +1141,7 @@ function renderFilterBar(barId, filterSet) {
   bar.innerHTML = `<span class="filter-bar-label">Show:</span>` +
     S.groups.map(g => {
       const checked = filterSet===null || filterSet.has(g.id);
-      const dotColor = g.settings.bgColor || g.panels[0]?.color || 'var(--border2)';
+      const dotColor = g.settings.bgColor || g.settings.defaultPanelColor || g.panels[0]?.color || 'var(--border2)';
       return `<label class="filter-chip${checked?' checked':''}" id="fchip-${barId}-${g.id}">
         <input type="checkbox" ${checked?'checked':''} onchange="onFilterChange('${barId}','${g.id}',this.checked)" aria-label="Toggle ${esc(g.name)}">
         <div class="filter-chip-dot" style="background:${dotColor}"></div>
@@ -1057,7 +1185,14 @@ function renderBoard() {
   container.style.gridTemplateColumns = '';
 
   if (!g.panels.length) {
-    container.innerHTML = `<div style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:12px;padding:32px 0;">No panels yet — create one to get started.</div>`;
+    const slot = document.createElement('button');
+    slot.className = 'add-panel-slot' + (layout === 'horizontal' ? ' horiz' : '');
+    slot.setAttribute('aria-label', 'Add new panel');
+    if (layout === 'vertical') slot.style.minHeight = '';
+    slot.innerHTML = '<span class="add-panel-slot-icon">+</span><span>NEW PANEL</span>';
+    slot.addEventListener('click', addPanel);
+    container.innerHTML = '';
+    container.appendChild(slot);
     applyBg(); return;
   }
 
@@ -1065,27 +1200,45 @@ function renderBoard() {
   // Horizontal: full width, tasks wrap to fill whatever space is available.
   const panelStyle = layout === 'vertical' ? 'min-width:270px;max-width:270px;' : '';
 
+  // Two layered colours per panel:
+  //   1. PANEL COLOUR — base background for the whole panel (header + body). Comes from
+  //      g.settings.defaultPanelColor. Empty = use CSS default var(--surface).
+  //   2. HEADER OVERLAY — the per-panel p.color (existing behaviour). Sits ON TOP of the
+  //      panel base via stripe / tint / full styles. Stock colours mean "no overlay".
+  const STOCK_OVERLAY_COLORS = new Set(['', '#111111', '#2a2a3a']);
+  const headerOverlayOf = p => STOCK_OVERLAY_COLORS.has(p.color||'') ? '' : p.color;
+  const panelBg = g.settings.defaultPanelColor || ''; // board-wide
+
   let h = '';
   for (const p of g.panels) {
-    const col = p.color || '#111111';
+    const overlay = headerOverlayOf(p);
     const tasks = panelTasks(p.id);
 
+    const panelBgStyle = panelBg ? `background:${panelBg};` : '';
+    // Text colour for body content (and header in non-full modes) contrasts with the panel base
+    const bodyTextColor = panelBg ? contrastColor(panelBg) : 'var(--text)';
+
+    // Header overlay style — unchanged stripe / tint / full logic from before, only
+    // applied when an overlay colour is set.
     let hdrClass = 'panel-header cs-' + colorStyle;
-    let hdrStyle = '', nameColor = 'var(--text)';
-    if (colorStyle==='stripe') {
-      hdrStyle = `border-left-color:${col};`;
-    } else if (colorStyle==='tint') {
-      hdrStyle = `border-left:4px solid ${col};background:${hexAlpha(col,0.13)};`;
-    } else if (colorStyle==='full') {
-      hdrStyle = `background:${col};`; nameColor = contrastColor(col);
+    let hdrStyle = '';
+    let nameColor = bodyTextColor;
+    if (overlay) {
+      if (colorStyle === 'stripe') {
+        hdrStyle = `border-left-color:${overlay};`;
+      } else if (colorStyle === 'tint') {
+        hdrStyle = `border-left:4px solid ${overlay};background:${hexAlpha(overlay,0.13)};`;
+      } else { // full
+        hdrStyle = `background:${overlay};`;
+        nameColor = contrastColor(overlay); // header is now dominated by overlay
+      }
     }
 
-    const bodyStyle = '';
-
+    const bodyStyle = ''; // panel body inherits panel background transparently
     const sortLabel = {date:'↕ Date', alpha:'A→Z', none:'· Free'}[p.sort||'date'];
 
     h += `
-    <div class="panel" id="panel-${p.id}" ${panelStyle?`style="${panelStyle}"`:''}>
+    <div class="panel" id="panel-${p.id}" style="${panelStyle}${panelBgStyle}">
       <div class="${hdrClass}" style="${hdrStyle}" onpointerdown="initPanelPointerDrag(event,'${p.id}')">
         <span class="panel-name-input" contenteditable="true"
           style="color:${nameColor};"
@@ -1104,22 +1257,32 @@ function renderBoard() {
           <button class="panel-btn panel-btn-del" onclick="deletePanel('${p.id}')">Delete</button>
         </div>
       </div>
-      <div class="panel-body" id="pbody-${p.id}" style="${bodyStyle}"
+      <div class="panel-body" id="pbody-${p.id}"
         ondragover="ev_panelOver(event,'${p.id}')"
         ondrop="ev_panelDrop(event,'${p.id}')"
         ondragleave="ev_panelLeave(event,'${p.id}')">
-        ${tasks.length ? tasks.map(t=>cardHTML(t,g,(p.sort||'date')==='none')).join('') : '<div class="empty-panel-hint">— empty —</div>'}
+        ${tasks.length ? tasks.map(t=>cardHTML(t,g,(p.sort||'date')==='none')).join('') : `<div class="empty-panel-hint" style="color:${bodyTextColor};opacity:0.45;">— empty —</div>`}
       </div>
       <div class="panel-footer"></div>
     </div>`;
   }
   container.innerHTML = h;
+
+  // Append inline "add panel" slot at the end of the container in both layouts.
+  // Vertical: panel-shaped column. Horizontal: full-width short row.
+  const slot = document.createElement('button');
+  slot.className = 'add-panel-slot' + (layout === 'horizontal' ? ' horiz' : '');
+  slot.setAttribute('aria-label', 'Add new panel');
+  slot.innerHTML = '<span class="add-panel-slot-icon">+</span><span>NEW PANEL</span>';
+  slot.addEventListener('click', addPanel);
+  container.appendChild(slot);
   applyBg();
 }
 
 function cardHTML(t, g, freeSort=false) {
   const s=subj(t.subjectId,g), ty=ttype(t.typeId,g);
-  const outline=s?s.color:'#111111', fill=ty?ty.color:'#2d2d2d';
+  const outline=s?s.color:'#111111';
+  const fill=ty?ty.color:(g.settings.defaultTaskColor||'#2d2d2d');
   const tc=contrastColor(fill);
   let badgeHTML = '';
   if (t.startDate) {
@@ -1733,7 +1896,7 @@ function ev_calDrop(e,iso) {
 // ══════════════════════════════════════
 function addPanel() {
   const g=activeGroup(); if (!g) return;
-  const newPanel = {id:uid(),name:'New Panel',color:'#111111',sort:'date'};
+  const newPanel = {id:uid(), name:'New Panel', color:'', sort:'date'};
   g.panels.push(newPanel);
   invalidatePanelCache();
   save(); renderBoard();
@@ -1951,15 +2114,46 @@ function deleteTaskPerm(id) {
 function openSettings() {
   closeModals(); _pendingBgData=null;
   const g=activeGroup(); if (!g) return;
-  const {panelLayout:lay, panelColorStyle:cs, bgImage, bgBlur, bgColor}=g.settings;
+  const {panelLayout:lay, panelColorStyle:cs, bgImage, bgBlur,
+         bgColor, chromeColor, defaultPanelColor, defaultTaskColor}=g.settings;
 
-  // Top-level helper at end of file — kind is 's' (subject) or 't' (type)
   const sRow = (id,name,color) => makeSettingsRow('s', id, name, color);
   const tRow = (id,name,color) => makeSettingsRow('t', id, name, color);
+
+  function colField(label, inputId, btnId, val, previewFn, clearFn) {
+    const bg = val || 'transparent';
+    const isEmpty = !val;
+    const clearBtn = clearFn
+      ? `<button class="stbl-add-btn" style="margin-top:0;" onclick="${clearFn}()">&#x2715; Clear</button>`
+      : '';
+    return `
+      <div class="form-group">
+        <label class="form-label">${label}</label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="settings-color-btn${isEmpty?' empty':''}" id="${btnId}"
+            style="background:${bg}"
+            data-preview="${previewFn}"
+            onclick="openInlineColor('${inputId}','${btnId}')"></div>
+          <input type="hidden" id="${inputId}" value="${val||''}">
+          <span class="dim-note" style="font-size:10px;">${val||'None'}</span>
+          ${clearBtn}
+        </div>
+      </div>`;
+  }
+
+  const darkThemes  = BUILT_IN_THEMES.filter(t=>t.isDark);
+  const lightThemes = BUILT_IN_THEMES.filter(t=>!t.isDark);
+  const customs     = S.customThemes || [];
+  const addCard = `
+    <div class="theme-card theme-card-add" onclick="addCustomTheme()" title="Save current colours as a theme">
+      <div class="theme-card-preview"><div class="theme-card-add-icon">+</div></div>
+      <div class="theme-card-name">Add</div>
+    </div>`;
 
   const m=mkModal(`
   <div class="modal settings-modal" onclick="event.stopPropagation()">
     <div class="modal-title">Settings — <span style="color:var(--accent)">${esc(g.name)}</span></div>
+
     <div class="stbl-section">
       <div class="stbl-title">Layout</div>
       <div class="form-group">
@@ -1971,7 +2165,7 @@ function openSettings() {
         <div class="dim-note" style="margin-top:6px;">Horizontal = rows of cards. Vertical = Trello-style columns.</div>
       </div>
       <div class="form-group">
-        <label class="form-label">Panel Colour Style</label>
+        <label class="form-label">Panel Header Colour Style</label>
         <div class="opt-group" id="cs-opts">
           <button class="opt-btn${cs==='stripe'?' active':''}" data-value="stripe" onclick="setOpt(this,'cs-opts')">&#9474; Stripe</button>
           <button class="opt-btn${cs==='tint'?' active':''}"   data-value="tint"   onclick="setOpt(this,'cs-opts')">&#9617; Tint</button>
@@ -1979,6 +2173,49 @@ function openSettings() {
         </div>
       </div>
     </div>
+
+    <div class="stbl-section">
+      <div class="stbl-title">Appearance</div>
+
+      <div class="theme-section-label">Dark Themes</div>
+      <div class="theme-grid">${darkThemes.map(t=>themeCardHTML(t,false)).join('')}</div>
+
+      <div class="theme-section-label">Light Themes</div>
+      <div class="theme-grid">${lightThemes.map(t=>themeCardHTML(t,false)).join('')}</div>
+
+      <div class="theme-section-label">Custom Themes</div>
+      <div class="theme-grid" id="custom-themes-row">${customs.map(t=>themeCardHTML(t,true)).join('')}${addCard}</div>
+
+      <div style="height:14px"></div>
+
+      ${colField('Panel Colour',  's-defaultPanelColor', 's-defaultPanelColor-btn',
+          defaultPanelColor||'', 'previewDefaultPanelColor', 'clearDefaultPanelColor')}
+      ${colField('Task Colour <span style="opacity:.4;font-weight:400;">(no type assigned)</span>',
+          's-defaultTaskColor', 's-defaultTaskColor-btn',
+          defaultTaskColor||'', 'previewDefaultTaskColor', 'clearDefaultTaskColor')}
+      ${colField('Board Colour <span style="opacity:.4;font-weight:400;">(overridden by image)</span>',
+          's-bgColor', 's-bgColor-btn',
+          bgColor||'', 'previewBgColorLive', 'clearBgColor')}
+      ${colField('Header Colour <span style="opacity:.4;font-weight:400;">(nav &amp; tabs bar)</span>',
+          's-chromeColor', 's-chromeColor-btn',
+          chromeColor||'', 'previewChromeColor', 'clearChromeColor')}
+      ${colField('Border Colour <span style="opacity:.4;font-weight:400;">(panels, panel header, nav borders)</span>',
+          's-borderColor', 's-borderColor-btn',
+          (g.settings.borderColor||''), 'previewBorderColor', 'clearBorderColor')}
+
+      <div class="form-group" style="margin-top:14px;">
+        <label class="form-label">Board Image <span style="opacity:.4">(takes priority over Board Colour)</span></label>
+        <input type="file" accept="image/*" id="bg-file" class="form-input" onchange="handleBgFile(this)">
+        ${bgImage?`<div class="dim-note" style="margin-top:5px;">&#10003; Image loaded — pick a new file to replace</div>`:''}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Image Blur &mdash; <span id="blur-label">${bgBlur||0}</span>px</label>
+        <input type="range" id="bg-blur" min="0" max="24" value="${bgBlur||0}"
+          style="width:100%" oninput="document.getElementById('blur-label').textContent=this.value;previewBg()">
+      </div>
+      ${bgImage?`<button class="stbl-add-btn" style="color:#e05555;border-color:#5a1a1a;" onclick="clearBgImage()">&#x2715; Remove image</button>`:''}
+    </div>
+
     <div class="stbl-section">
       <div class="stbl-title">Subjects <span style="font-weight:400;color:var(--text-muted);font-size:11px;">— outline colour</span></div>
       <table class="stbl"><thead><tr><th>Name</th><th>Colour</th><th></th></tr></thead>
@@ -1986,6 +2223,7 @@ function openSettings() {
       </table>
       <button class="stbl-add-btn" onclick="addSubjRow()">+ Add Subject</button>
     </div>
+
     <div class="stbl-section">
       <div class="stbl-title">Task Types <span style="font-weight:400;color:var(--text-muted);font-size:11px;">— fill colour</span></div>
       <table class="stbl"><thead><tr><th>Name</th><th>Colour</th><th></th></tr></thead>
@@ -1993,36 +2231,15 @@ function openSettings() {
       </table>
       <button class="stbl-add-btn" onclick="addTypeRow()">+ Add Type</button>
     </div>
-    <div class="stbl-section">
-      <div class="stbl-title">Background</div>
-      <div class="form-group">
-        <label class="form-label">Board Colour <span style="opacity:.4">(overridden by image)</span></label>
-        <div class="pastel-grid" style="margin-bottom:8px;">${PASTELS.map(c=>`<div class="pastel-swatch${bgColor===c?' sel':''}" style="background:${c};${c==='#111111'?'outline:1px solid #555;':''}" title="${c}" onclick="setBoardBgColor('${c}')"></div>`).join('')}</div>
-        <div style="display:flex;gap:10px;align-items:center;">
-          <input type="color" id="bg-color" value="${bgColor||'#0c0c0f'}"
-            style="width:48px;height:34px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;"
-            oninput="previewBgColor(this.value)">
-          <button class="stbl-add-btn" style="margin-top:0;" onclick="clearBgColor()">&#x2715; Clear colour</button>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Image File <span style="opacity:.4">(takes priority over colour)</span></label>
-        <input type="file" accept="image/*" id="bg-file" class="form-input" onchange="handleBgFile(this)">
-        ${bgImage?`<div class="dim-note" style="margin-top:5px;">&#10003; Image loaded — pick a new file to replace</div>`:''}
-      </div>
-      <div class="form-group">
-        <label class="form-label">Blur &mdash; <span id="blur-label">${bgBlur||0}</span>px</label>
-        <input type="range" id="bg-blur" min="0" max="24" value="${bgBlur||0}"
-          style="width:100%" oninput="document.getElementById('blur-label').textContent=this.value;previewBg()">
-      </div>
-      ${bgImage?`<button class="stbl-add-btn" style="color:#e05555;border-color:#5a1a1a;" onclick="clearBgImage()">&#x2715; Remove image</button>`:''}
-    </div>
+
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModals()">Cancel</button>
       <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
     </div>
   </div>`);
   document.getElementById('modals').appendChild(m);
+  // After the modal renders, highlight the currently-matching theme card (if any)
+  setTimeout(highlightCurrentTheme, 30);
 }
 
 function setOpt(btn, groupId) {
@@ -2138,9 +2355,12 @@ function saveSettings() {
   if(layActive && layActive.dataset.value) g.settings.panelLayout = layActive.dataset.value;
   if(csActive  && csActive.dataset.value)  g.settings.panelColorStyle = csActive.dataset.value;
   if(_pendingBgData!==null) g.settings.bgImage=_pendingBgData;
-  g.settings.bgBlur=parseInt(document.getElementById('bg-blur')?.value)||0;
-  const bgColorVal=document.getElementById('bg-color')?.value||'';
-  g.settings.bgColor=(bgColorVal==='#0c0c0f'?'':bgColorVal);
+  g.settings.bgBlur   = parseInt(document.getElementById('bg-blur')?.value)||0;
+  g.settings.bgColor  = document.getElementById('s-bgColor')?.value || '';
+  g.settings.chromeColor = document.getElementById('s-chromeColor')?.value || '';
+  g.settings.borderColor = document.getElementById('s-borderColor')?.value || '';
+  g.settings.defaultPanelColor = document.getElementById('s-defaultPanelColor')?.value || '';
+  g.settings.defaultTaskColor  = document.getElementById('s-defaultTaskColor')?.value  || '';
   _pendingBgData=null;
   save(); closeModals(); renderBoard(); renderCalendar(); applyBg();
 }
@@ -2264,26 +2484,181 @@ function openInlineColor(inputId, btnId) {
 function setInlineColor(inputId, btnId, color, close=true) {
   const inp=document.getElementById(inputId), btn=document.getElementById(btnId);
   if(inp) inp.value=color;
-  if(btn) btn.style.background=color;
+  if(btn) {
+    btn.style.background = color || 'transparent';
+    btn.classList.toggle('empty', !color);
+  }
+  const label = btn?.parentNode?.querySelector('.dim-note');
+  if (label) label.textContent = color || 'None';
+  const cb = btn?.dataset.preview;
+  if(cb && typeof window[cb]==='function') window[cb](color);
   document.querySelector('.inline-color-picker')?.querySelectorAll('.pastel-swatch').forEach(s=>s.classList.toggle('sel',s.title===color));
   if(close) document.querySelector('.inline-color-picker')?.remove();
+  // If the appearance section is open, update theme highlighting
+  if (typeof highlightCurrentTheme === 'function' && document.querySelector('.theme-card')) {
+    highlightCurrentTheme();
+  }
 }
 
-function setBoardBgColor(col) {
-  const inp=document.getElementById('bg-color');
-  if(inp) inp.value=col;
-  document.querySelectorAll('.pastel-swatch').forEach(sw=>sw.classList.toggle('sel',sw.title===col));
-  previewBgColor(col);
-}
-function previewBgColor(col) {
+// Live previews — called via data-preview on colour picker buttons
+function previewBgColorLive(col) {
   const bl=document.getElementById('bg-layer');
   bl.style.backgroundImage=''; bl.style.filter=''; bl.style.transform='';
-  bl.style.backgroundColor=col;
+  bl.style.backgroundColor=col||'';
 }
-function clearBgColor() {
-  const inp=document.getElementById('bg-color'); if(inp) inp.value='#0c0c0f';
-  previewBgColor('#0c0c0f');
+function previewDefaultPanelColor() { /* visual change only affects board render, skip live preview */ }
+function previewDefaultTaskColor()  { /* same */ }
+
+// Shared: reset a settings colour field — input='', empty strikethrough swatch, "None" label,
+// and fire any registered live-preview callback so the visible preview is also cleared.
+function _clearColField(inputId, btnId, previewCb) {
+  const inp=document.getElementById(inputId), btn=document.getElementById(btnId);
+  if(inp) inp.value='';
+  if(btn){ btn.style.background='transparent'; btn.classList.add('empty'); }
+  const label = btn?.parentNode?.querySelector('.dim-note');
+  if(label) label.textContent='None';
+  if(previewCb && typeof window[previewCb]==='function') window[previewCb]('');
+  if (typeof highlightCurrentTheme === 'function' && document.querySelector('.theme-card')) {
+    highlightCurrentTheme();
+  }
 }
+function clearBgColor()           { _clearColField('s-bgColor',          's-bgColor-btn',          'previewBgColorLive'); }
+function clearChromeColor()       { _clearColField('s-chromeColor',      's-chromeColor-btn',      'previewChromeColor'); }
+function clearDefaultPanelColor() { _clearColField('s-defaultPanelColor','s-defaultPanelColor-btn',''); }
+function clearDefaultTaskColor()  { _clearColField('s-defaultTaskColor', 's-defaultTaskColor-btn', ''); }
+function clearBorderColor()       { _clearColField('s-borderColor',      's-borderColor-btn',      'previewBorderColor'); }
+function previewBorderColor(col) {
+  const root = document.documentElement;
+  if (col) {
+    root.style.setProperty('--chrome-border', col);
+    root.style.setProperty('--panel-border',  col);
+  } else {
+    root.style.removeProperty('--panel-border');
+    // Restore chrome-border from current chrome colour
+    const g = activeGroup();
+    _applyChromeVars(g?.settings.chromeColor || '');
+  }
+}
+
+// ── THEME HELPERS ─────────────────────────────────────────────────────────
+function themeCardHTML(t, isCustom) {
+  const bg     = t.bg     || 'var(--surface3)';
+  const chrome = t.chrome || bg;
+  const panel  = t.panel  || 'var(--surface2)';
+  const task   = t.task   || 'var(--surface3)';
+  const delBtn = isCustom
+    ? `<button class="theme-card-del" onclick="event.stopPropagation();deleteCustomTheme('${t.id}')" aria-label="Delete theme">&#x2715;</button>`
+    : '';
+  return `
+    <div class="theme-card" data-theme-id="${t.id}" onclick="applyTheme('${t.id}')" title="${esc(t.name)}">
+      <div class="theme-card-preview" style="background:${bg};">
+        <div class="theme-card-chrome" style="background:${chrome};"></div>
+        <div class="theme-card-body">
+          <div class="theme-card-panel" style="background:${panel};">
+            <div class="theme-card-task" style="background:${task};"></div>
+          </div>
+        </div>
+      </div>
+      <div class="theme-card-name">${esc(t.name)}</div>
+      ${delBtn}
+    </div>`;
+}
+function applyTheme(themeId) {
+  const t = BUILT_IN_THEMES.find(x=>x.id===themeId)
+         || (S.customThemes||[]).find(x=>x.id===themeId);
+  if (!t) return;
+  setInlineColor('s-defaultPanelColor','s-defaultPanelColor-btn', t.panel  || '', false);
+  setInlineColor('s-defaultTaskColor', 's-defaultTaskColor-btn',  t.task   || '', false);
+  setInlineColor('s-bgColor',          's-bgColor-btn',           t.bg     || '', false);
+  setInlineColor('s-chromeColor',      's-chromeColor-btn',       t.chrome || '', false);
+  setInlineColor('s-borderColor',      's-borderColor-btn',       t.border || '', false);
+  highlightCurrentTheme();
+}
+function addCustomTheme() {
+  const panel  = document.getElementById('s-defaultPanelColor')?.value || '';
+  const task   = document.getElementById('s-defaultTaskColor')?.value  || '';
+  const bg     = document.getElementById('s-bgColor')?.value           || '';
+  const chrome = document.getElementById('s-chromeColor')?.value       || '';
+  const border = document.getElementById('s-borderColor')?.value       || '';
+  if (!panel && !task && !bg && !chrome && !border) {
+    showToast('&#x26A0; Pick at least one colour before saving a theme.');
+    return;
+  }
+  S.customThemes = S.customThemes || [];
+  const n = S.customThemes.length + 1;
+  S.customThemes.push({ id:'custom-'+uid(), name:`Custom ${n}`, panel, task, bg, chrome, border });
+  save();
+  refreshCustomThemesRow();
+  showToast(`&#10003; Saved as Custom ${n}`);
+}
+function deleteCustomTheme(id) {
+  S.customThemes = (S.customThemes||[]).filter(t=>t.id!==id);
+  save();
+  refreshCustomThemesRow();
+}
+function refreshCustomThemesRow() {
+  const row = document.getElementById('custom-themes-row');
+  if (!row) return;
+  const customs = S.customThemes || [];
+  row.innerHTML = customs.map(t=>themeCardHTML(t,true)).join('') +
+    `<div class="theme-card theme-card-add" onclick="addCustomTheme()" title="Save current colours as a theme">
+       <div class="theme-card-preview"><div class="theme-card-add-icon">+</div></div>
+       <div class="theme-card-name">Add</div>
+     </div>`;
+  highlightCurrentTheme();
+}
+function getCurrentThemeId() {
+  const panel  = document.getElementById('s-defaultPanelColor')?.value || '';
+  const task   = document.getElementById('s-defaultTaskColor')?.value  || '';
+  const bg     = document.getElementById('s-bgColor')?.value           || '';
+  const chrome = document.getElementById('s-chromeColor')?.value       || '';
+  const border = document.getElementById('s-borderColor')?.value       || '';
+  const all = [...BUILT_IN_THEMES, ...(S.customThemes||[])];
+  return all.find(t =>
+    (t.panel ||'') === panel  &&
+    (t.task  ||'') === task   &&
+    (t.bg    ||'') === bg     &&
+    (t.chrome||'') === chrome &&
+    (t.border||'') === border
+  )?.id || null;
+}
+function highlightCurrentTheme() {
+  document.querySelectorAll('.theme-card').forEach(c=>c.classList.remove('selected'));
+  const id = getCurrentThemeId();
+  if (id) document.querySelector(`.theme-card[data-theme-id="${id}"]`)?.classList.add('selected');
+}
+// Shared: compute and set --chrome-* CSS vars from a hex colour string.
+// Called by applyBg (on board switch) and previewChromeColor (live preview in settings).
+function _applyChromeVars(col) {
+  const root = document.documentElement;
+  if (col && col.startsWith('#') && col.length === 7) {
+    const r=parseInt(col.slice(1,3),16);
+    const g2=parseInt(col.slice(3,5),16);
+    const b=parseInt(col.slice(5,7),16);
+    const lum=(0.299*r+0.587*g2+0.114*b)/255;
+    const light = lum > 0.5;
+    const shift = light ? -22 : 20;
+    const clamp = v => Math.max(0,Math.min(255,Math.round(v)));
+    const hr=clamp(r+shift), hg=clamp(g2+shift), hb=clamp(b+shift);
+    const shift2 = light ? -12 : 12;
+    const tr=clamp(r+shift2), tg=clamp(g2+shift2), tb=clamp(b+shift2);
+    root.style.setProperty('--chrome-bg',         `rgba(${hr},${hg},${hb},0.94)`);
+    root.style.setProperty('--chrome-bg2',        `rgba(${tr},${tg},${tb},0.90)`);
+    root.style.setProperty('--chrome-text',        light ? '#111118' : '#e4e4ee');
+    root.style.setProperty('--chrome-text-muted',  light ? 'rgba(0,0,0,0.42)' : 'rgba(255,255,255,0.42)');
+    root.style.setProperty('--chrome-text-dim',    light ? 'rgba(0,0,0,0.60)' : 'rgba(255,255,255,0.60)');
+    root.style.setProperty('--chrome-border',      light ? 'rgba(0,0,0,0.13)' : 'rgba(255,255,255,0.10)');
+    root.style.setProperty('--chrome-surface',     light ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.07)');
+    root.style.setProperty('--chrome-surface2',    light ? 'rgba(0,0,0,0.13)' : 'rgba(255,255,255,0.13)');
+  } else {
+    ['--chrome-bg','--chrome-bg2','--chrome-text','--chrome-text-muted',
+     '--chrome-text-dim','--chrome-border','--chrome-surface','--chrome-surface2']
+      .forEach(v => root.style.removeProperty(v));
+  }
+}
+// Live preview called from settings colour picker via data-preview="previewChromeColor"
+function previewChromeColor(col) { _applyChromeVars(col); }
+
 function applyBg() {
   const g=activeGroup(), bl=document.getElementById('bg-layer');
   const img=g?.settings.bgImage||'', col=g?.settings.bgColor||'';
@@ -2294,6 +2669,46 @@ function applyBg() {
     bl.style.backgroundImage=''; bl.style.filter=''; bl.style.transform=''; bl.style.backgroundColor=col;
   } else {
     bl.style.backgroundImage=''; bl.style.filter=''; bl.style.transform=''; bl.style.backgroundColor='';
+  }
+
+  _applyChromeVars(g?.settings.chromeColor||'');
+
+  const root = document.documentElement;
+
+  // borderColor overrides --chrome-border and --panel-border
+  const borderCol = g?.settings.borderColor || '';
+  if (borderCol) {
+    root.style.setProperty('--chrome-border', borderCol);
+    root.style.setProperty('--panel-border',  borderCol);
+  } else {
+    root.style.removeProperty('--panel-border');
+  }
+
+  // --view-* vars: adapt calendar / archive / all-boards text & surfaces to bgColor luminance
+  const VIEW_VARS = ['--view-text','--view-text-muted','--view-text-dim','--view-surface','--view-surface-alt','--view-hdr-bg','--view-today-bg'];
+  if (col && col.startsWith('#') && col.length === 7) {
+    const r=parseInt(col.slice(1,3),16), g2=parseInt(col.slice(3,5),16), b=parseInt(col.slice(5,7),16);
+    const lum=(0.299*r+0.587*g2+0.114*b)/255;
+    if (lum > 0.45) {
+      // Light board — dark text, semi-transparent surfaces that tint with the board colour
+      root.style.setProperty('--view-text',        '#111118');
+      root.style.setProperty('--view-text-muted',  '#444452');
+      root.style.setProperty('--view-text-dim',    '#666674');
+      root.style.setProperty('--view-surface',     'rgba(255,255,255,0.60)');
+      root.style.setProperty('--view-surface-alt', 'rgba(0,0,0,0.05)');
+      root.style.setProperty('--view-hdr-bg',      'rgba(0,0,0,0.12)');
+      root.style.setProperty('--view-today-bg',    'rgba(0,0,0,0.14)');
+    } else {
+      // Dark board — keep default light text vars, but tint cell surfaces with the board colour
+      ['--view-text','--view-text-muted','--view-text-dim'].forEach(v=>root.style.removeProperty(v));
+      root.style.setProperty('--view-surface',     'rgba(255,255,255,0.05)');
+      root.style.setProperty('--view-surface-alt', 'rgba(0,0,0,0.20)');
+      root.style.setProperty('--view-hdr-bg',      'rgba(0,0,0,0.26)');
+      root.style.setProperty('--view-today-bg',    'rgba(255,255,255,0.12)');
+    }
+  } else {
+    // No board colour — full reset to global dark defaults
+    VIEW_VARS.forEach(v=>root.style.removeProperty(v));
   }
 }
 
